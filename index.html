@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NGO 勞資小幫手｜合約違法風險檢查器</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #faf8f3;
+    --warm: #f5f0e8;
+    --accent: #c0392b;
+    --accent-soft: #e8d5d3;
+    --gold: #b8860b;
+    --gold-light: #f5e6c8;
+    --green: #27ae60;
+    --green-light: #d5f0e3;
+    --yellow: #e67e22;
+    --yellow-light: #fdebd0;
+    --red: #c0392b;
+    --red-light: #fde8e8;
+    --gray: #7f8c8d;
+    --border: #d4c9b0;
+    --shadow: rgba(26,26,46,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%23faf8f3'/%3E%3Crect width='1' height='1' x='0' y='0' fill='%23e8e0d0' opacity='0.3'/%3E%3Crect width='1' height='1' x='2' y='2' fill='%23e8e0d0' opacity='0.2'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    border-bottom: 2px solid var(--ink);
+    padding: 32px 0 24px;
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .logo-area { flex: 1; }
+
+  .logo-tag {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    display: inline-block;
+    padding: 3px 8px;
+    margin-bottom: 10px;
+  }
+
+  h1 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: clamp(24px, 4vw, 36px);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
+  }
+
+  h1 span {
+    color: var(--accent);
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--gray);
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+
+  .law-badge {
+    background: var(--ink);
+    color: var(--paper);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 11px;
+    padding: 6px 14px;
+    text-align: center;
+    line-height: 1.8;
+    flex-shrink: 0;
+  }
+
+  /* API Key Section */
+  .api-section {
+    background: var(--gold-light);
+    border: 1px solid var(--gold);
+    border-left: 4px solid var(--gold);
+    padding: 18px 20px;
+    margin-bottom: 28px;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .api-section label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    color: var(--gold);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .api-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .api-section input {
+    flex: 1;
+    background: rgba(255,255,255,0.7);
+    border: 1px solid var(--gold);
+    padding: 10px 14px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    color: var(--ink);
+    outline: none;
+  }
+
+  .api-hint {
+    font-size: 11px;
+    color: var(--gold);
+    margin-top: 8px;
+  }
+
+  .api-hint a { color: var(--gold); }
+
+  /* Input area */
+  .input-card {
+    background: white;
+    border: 1px solid var(--border);
+    padding: 28px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 12px var(--shadow);
+    animation: slideUp 0.6s ease;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gray);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 220px;
+    border: 1px solid var(--border);
+    background: var(--warm);
+    padding: 16px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--ink);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  textarea:focus { border-color: var(--ink); }
+
+  textarea::placeholder { color: #bbb; font-style: italic; }
+
+  /* Sample contracts */
+  .samples {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+
+  .sample-btn {
+    font-size: 11px;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    background: white;
+    cursor: pointer;
+    color: var(--gray);
+    font-family: 'Noto Sans TC', sans-serif;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .sample-btn:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+    background: var(--warm);
+  }
+
+  /* Submit button */
+  .btn-check {
+    width: 100%;
+    margin-top: 20px;
+    padding: 16px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-check::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .btn-check:hover::before { transform: translateX(0); }
+  .btn-check span { position: relative; z-index: 1; }
+  .btn-check:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-check:disabled::before { display: none; }
+
+  /* Loading */
+  .loading {
+    display: none;
+    text-align: center;
+    padding: 48px;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .loading.active { display: block; }
+
+  .loader {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  .loading-text {
+    font-size: 13px;
+    color: var(--gray);
+    letter-spacing: 1px;
+  }
+
+  /* Results */
+  .result-card {
+    display: none;
+    background: white;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 24px var(--shadow);
+    animation: slideUp 0.5s ease;
+    margin-bottom: 40px;
+  }
+
+  .result-card.active { display: block; }
+
+  .result-header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 20px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .result-header h2 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .result-timestamp {
+    font-size: 11px;
+    color: rgba(250,248,243,0.5);
+    letter-spacing: 1px;
+  }
+
+  .result-body {
+    padding: 28px;
+  }
+
+  /* Risk summary bar */
+  .risk-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding: 16px;
+    background: var(--warm);
+    border: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .risk-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+  }
+
+  .risk-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot-red { background: var(--red); }
+  .dot-yellow { background: var(--yellow); }
+  .dot-green { background: var(--green); }
+  .dot-gray { background: #bbb; }
+
+  /* Markdown rendered output */
+  .ai-output {
+    font-size: 14px;
+    line-height: 1.9;
+    color: var(--ink);
+  }
+
+  .ai-output h2 {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin: 24px 0 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+    color: var(--ink);
+  }
+
+  .ai-output h2:first-child { margin-top: 0; }
+
+  .ai-output p {
+    margin-bottom: 10px;
+  }
+
+  .ai-output ul, .ai-output ol {
+    padding-left: 20px;
+    margin-bottom: 12px;
+  }
+
+  .ai-output li { margin-bottom: 4px; }
+
+  .ai-output table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 12px 0 20px;
+    overflow-x: auto;
+    display: block;
+  }
+
+  .ai-output th {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+
+  .ai-output td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.6;
+  }
+
+  .ai-output tr:nth-child(even) td { background: var(--warm); }
+
+  .ai-output blockquote {
+    border-left: 3px solid var(--accent);
+    padding: 10px 16px;
+    margin: 12px 0;
+    background: var(--red-light);
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  .ai-output strong { font-weight: 600; }
+
+  .ai-output hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 20px 0;
+  }
+
+  /* Risk badges inline */
+  .ai-output .badge-red {
+    display: inline-block;
+    background: var(--red-light);
+    color: var(--red);
+    border: 1px solid var(--accent-soft);
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 2px;
+  }
+
+  /* Disclaimer */
+  .disclaimer {
+    background: var(--gold-light);
+    border: 1px solid var(--gold);
+    padding: 14px 18px;
+    font-size: 12px;
+    color: var(--gold);
+    margin-top: 24px;
+    line-height: 1.6;
+  }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 20px 0;
+    text-align: center;
+    font-size: 11px;
+    color: var(--gray);
+    letter-spacing: 0.5px;
+    margin-top: 40px;
+  }
+
+  /* Animations */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* How-to section */
+  .howto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 32px;
+    animation: fadeIn 0.8s ease;
+  }
+
+  .howto-step {
+    background: var(--paper);
+    padding: 20px 18px;
+    position: relative;
+  }
+
+  .step-num {
+    font-family: 'Noto Serif TC', serif;
+    font-size: 32px;
+    color: var(--accent-soft);
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .step-title {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .step-desc {
+    font-size: 11px;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 600px) {
+    header { padding: 24px 0 18px; }
+    .header-inner { flex-direction: column; align-items: flex-start; }
+    .law-badge { align-self: flex-start; }
+    .input-card { padding: 20px 16px; }
+    .result-body { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="header-inner">
+      <div class="logo-area">
+        <div class="logo-tag">NGO 專用工具</div>
+        <h1>勞資<span>小幫手</span></h1>
+        <p class="subtitle">兼職人員合約違法風險檢查器｜依據台灣勞動基準法</p>
+      </div>
+      <div class="law-badge">
+        勞動基準法<br>合規檢查<br>2024
+      </div>
+    </div>
+  </header>
+
+  <!-- How to use -->
+  <div class="howto">
+    <div class="howto-step">
+      <div class="step-num">01</div>
+      <div class="step-title">取得 API 金鑰</div>
+      <div class="step-desc">至 Google AI Studio 申請免費 Gemini API Key</div>
+    </div>
+    <div class="howto-step">
+      <div class="step-num">02</div>
+      <div class="step-title">貼上合約內容</div>
+      <div class="step-desc">將兼職合約文字複製貼入下方欄位</div>
+    </div>
+    <div class="howto-step">
+      <div class="step-num">03</div>
+      <div class="step-title">自動分析</div>
+      <div class="step-desc">AI 逐條比對勞基法，標示風險等級</div>
+    </div>
+    <div class="howto-step">
+      <div class="step-num">04</div>
+      <div class="step-title">獲得建議</div>
+      <div class="step-desc">取得修改方向，必要時諮詢勞工局</div>
+    </div>
+  </div>
+
+  <!-- API Key -->
+  <div class="api-section">
+    <label>🔑 Google Gemini API Key</label>
+    <div class="api-row">
+      <input type="password" id="apiKey" placeholder="貼上您的 Gemini API Key（AIza...）" autocomplete="off">
+    </div>
+    <div class="api-hint">
+      免費申請：<a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a>
+      ｜金鑰僅在您的瀏覽器中使用，不會上傳至任何伺服器
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="input-card">
+    <div class="section-label">貼入合約內容</div>
+    <textarea id="contractText" placeholder="請將兼職人員合約條文貼入此處...
+
+例如：
+甲方（機構）與乙方（兼職人員）簽訂本合約，約定如下：
+1. 乙方擔任行政助理，每週工作20小時
+2. 時薪新台幣150元
+3. 工作期間不得請假，如需請假須自行找人代班
+..."></textarea>
+
+    <div class="samples">
+      <span style="font-size:11px;color:var(--gray);align-self:center;">範例合約：</span>
+      <button class="sample-btn" onclick="loadSample('bad')">⚠️ 高風險範例</button>
+      <button class="sample-btn" onclick="loadSample('good')">✓ 合規範例</button>
+      <button class="sample-btn" onclick="loadSample('ambiguous')">？灰色地帶範例</button>
+    </div>
+
+    <button class="btn-check" id="checkBtn" onclick="checkContract()">
+      <span>🔍 開始檢查合約</span>
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="loader"></div>
+    <div class="loading-text">正在比對勞動基準法條文，請稍候...</div>
+  </div>
+
+  <!-- Results -->
+  <div class="result-card" id="resultCard">
+    <div class="result-header">
+      <h2>📋 合約風險分析報告</h2>
+      <span class="result-timestamp" id="timestamp"></span>
+    </div>
+    <div class="result-body">
+      <div class="ai-output" id="aiOutput"></div>
+      <div class="disclaimer">
+        ⚠️ 本工具提供參考意見，不構成正式法律建議。若合約存在高風險項目，建議進一步諮詢勞工局（1955）或法律扶助基金會。
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="container">
+    NGO 勞資小幫手｜Powered by Google Gemini AI｜依據中華民國勞動基準法
+  </div>
+</footer>
+
+<script>
+const SYSTEM_PROMPT = `你是台灣 NGO 專用的「勞資小幫手」，專門協助小型非營利組織檢查兼職人員合約是否符合《勞動基準法》。
+
+【你的任務】
+當使用者提供合約文字時，請逐條分析以下重點項目，並依風險程度標示：
+🔴 高風險（明顯違法）
+🟡 中風險（灰色地帶，建議修改）  
+🟢 低風險（符合規定）
+⚪ 未提及（合約未載明，建議補充）
+
+【必查項目清單】
+1. 工作性質認定：是否為勞動契約或承攬契約？若實質上為僱傭關係卻簽承攬，屬假承攬真僱傭（違法）
+2. 工資：是否低於基本工資（時薪183元／月薪27,470元，2024年標準）
+3. 工時：每日不超過8小時、每週不超過40小時（勞基法§30）
+4. 例假與休假：每7日應有1例假，不得任意剝奪（§36）
+5. 加班費：延長工時是否依法給付加班費（§24）
+6. 勞健保：受僱者是否依法加保，勞保、健保、勞退提撥義務
+7. 終止契約：預告期是否符合法定規定（§16），資遣費計算方式
+8. 不合理條款：如「自願放棄加班費」、「不得請病假」等無效約定
+9. 競業禁止條款：是否符合勞基法§9-1規定（須合理補償）
+10. 試用期：試用期間勞動條件不得低於正式期間
+
+【輸出格式】
+請嚴格使用以下 Markdown 結構回覆（不要加其他說明）：
+
+## 📋 合約整體評估
+[一段話說明整體風險等級，用「整體風險：🔴高／🟡中／🟢低」開頭]
+
+## 🔍 逐項分析
+
+| 項目 | 風險等級 | 說明 | 建議修改方向 |
+|------|---------|------|------------|
+[逐一填入10個必查項目]
+
+## ⚠️ 優先處理事項
+[條列最需要立即修正的1-3項，加粗條款名稱]
+
+## 💡 建議補充條款
+[列出合約缺漏但應加入的保護條款]
+
+【注意事項】
+- 以台灣法律為準，法條請引用勞動基準法
+- 語氣友善，適合非法律背景的 NGO 工作者理解
+- 如合約內容模糊，請指出模糊之處並說明風險
+- 若使用者僅貼部分條款，請說明分析範圍的限制
+`;
+
+const SAMPLES = {
+  bad: `兼職工作合約書
+
+甲方（台灣某公益協會）與乙方（兼職人員）雙方合意訂立本合約，條件如下：
+
+第一條 工作內容
+乙方擔任行政助理，負責辦公室庶務、文書處理及活動協助。
+
+第二條 工作時間與薪資
+乙方每週工作25小時，時薪新台幣150元。工作時間由甲方彈性調度，乙方不得異議。
+
+第三條 假勤規定
+乙方工作期間不得請假；如有特殊情況需請假，須自行找人代班，否則當日工資照扣，並加罰一日工資。
+
+第四條 加班規定
+甲方業務繁忙時，乙方應配合延長工作時間，延長工時之薪資按原時薪計算，乙方不得要求額外加班費。
+
+第五條 保險
+乙方自行負擔所有保險費用，甲方不負責投保任何保險。
+
+第六條 合約終止
+甲方得隨時終止本合約，無須事先通知，亦無須支付任何補償或資遣費。
+
+第七條 競業禁止
+乙方離職後2年內不得從事任何公益相關工作，違者賠償甲方新台幣50萬元。
+
+第八條 其他
+本合約以承攬契約視之，乙方與甲方之間不存在僱傭關係。`,
+
+  good: `兼職工作合約書
+
+立合約人 台灣某公益協會（以下稱甲方）與兼職人員（以下稱乙方），雙方同意訂定本合約：
+
+第一條 工作性質
+本合約為勞動契約，乙方受甲方指揮監督，擔任專案行政人員。
+
+第二條 薪資
+乙方每小時薪資新台幣200元，月薪不得低於基本工資27,470元之比例換算。薪資每月15日發放。
+
+第三條 工作時間
+每週工作時間不超過40小時，每日不超過8小時。如有延長工時需求，依勞基法第24條規定加給加班費。
+
+第四條 休假
+乙方享有勞基法規定之例假、休息日及國定假日。工作滿一年後依法享有特別休假。
+
+第五條 勞工保險及健保
+甲方依法為乙方辦理勞工保險、全民健保及勞退金提撥。
+
+第六條 合約終止
+雙方終止合約須依勞基法第16條規定之預告期辦理。甲方如依法資遣乙方，應依規定給付資遣費。
+
+第七條 其他
+本合約未訂事項，依勞動基準法及相關法規辦理。`,
+
+  ambiguous: `兼職合作合約書
+
+甲方（公益組織）與乙方（合作人員）訂定本合作合約如下：
+
+一、合作內容：乙方提供社群媒體管理服務，包含每週發文3篇、粉專經營及活動宣傳。
+
+二、合作費用：每月合作費用新台幣15,000元，於次月5日匯款。
+
+三、工作方式：乙方得自行決定工作時間與地點，以成果交付為主。
+
+四、合作期間：一年，期滿雙方協議是否續約。
+
+五、提前終止：任一方得於一個月前通知對方終止合作，無須給付其他補償。
+
+六、智慧財產：乙方所製作之一切內容著作權歸甲方所有。
+
+七、其他：本合約為承攬性質，乙方自行申報所得稅，甲方不負責任何保險。`
+};
+
+function loadSample(type) {
+  document.getElementById('contractText').value = SAMPLES[type];
+}
+
+function parseMarkdown(md) {
+  return md
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^\|(.+)\|$/gm, (match) => {
+      const cells = match.split('|').filter(c => c.trim());
+      const isHeader = false;
+      return '<tr>' + cells.map(c => `<td>${c.trim()}</td>`).join('') + '</tr>';
+    })
+    .replace(/(<tr>.*<\/tr>\n?)+/gs, (block) => {
+      const rows = block.trim().split('\n').filter(r => r.trim() && !r.match(/^\|[-|: ]+\|$/));
+      if (rows.length === 0) return block;
+      const headerRow = rows[0];
+      const bodyRows = rows.slice(1);
+      const headerCells = headerRow.match(/<td>(.*?)<\/td>/g)?.map(c => c.replace(/<\/?td>/g, '')).map(c => `<th>${c}</th>`).join('') || '';
+      const body = bodyRows.map(r => {
+        const fixed = r.replace(/<td>/g, '<td>').replace(/<\/td>/g, '</td>');
+        return fixed;
+      }).join('\n');
+      return `<table><thead><tr>${headerCells}</tr></thead><tbody>${body}</tbody></table>`;
+    })
+    .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>\n?)+/gs, (block) => `<ul>${block}</ul>`)
+    .replace(/^(?!<[hult]|<block)(.+)$/gm, (line) => line.trim() ? `<p>${line}</p>` : '')
+    .replace(/---/g, '<hr>')
+    .replace(/\n{3,}/g, '\n\n');
+}
+
+async function checkContract() {
+  const apiKey = document.getElementById('apiKey').value.trim();
+  const contractText = document.getElementById('contractText').value.trim();
+
+  if (!apiKey) {
+    alert('請先輸入 Google Gemini API Key');
+    return;
+  }
+  if (!contractText) {
+    alert('請貼入合約內容');
+    return;
+  }
+
+  // UI state
+  document.getElementById('checkBtn').disabled = true;
+  document.getElementById('loading').classList.add('active');
+  document.getElementById('resultCard').classList.remove('active');
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: [{
+            role: 'user',
+            parts: [{ text: `請分析以下兼職合約是否符合台灣勞基法：\n\n${contractText}` }]
+          }],
+          generationConfig: {
+            temperature: 0.2,
+            maxOutputTokens: 2048
+          }
+        })
+      }
+    );
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error?.message || `HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '無法取得回應';
+
+    // Render
+    document.getElementById('aiOutput').innerHTML = parseMarkdown(text);
+    document.getElementById('timestamp').textContent = new Date().toLocaleString('zh-TW');
+    document.getElementById('resultCard').classList.add('active');
+    document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch (err) {
+    alert(`錯誤：${err.message}\n\n請確認 API Key 是否正確，或稍後再試。`);
+  } finally {
+    document.getElementById('checkBtn').disabled = false;
+    document.getElementById('loading').classList.remove('active');
+  }
+}
+</script>
+</body>
+</html>

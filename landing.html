@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NGO 勞資小幫手｜讓 NGO 告別勞資糾紛</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0f0f14;
+  --paper: #faf8f3;
+  --warm: #f2ede3;
+  --accent: #c0392b;
+  --accent2: #e74c3c;
+  --gold: #b8860b;
+  --green: #16a085;
+  --border: #d9d0bc;
+  --gray: #6b6b6b;
+  --light-gray: #f0ede6;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans TC',sans-serif;font-weight:300;color:var(--ink);background:var(--paper);overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(250,248,243,0.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:0 40px;height:60px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{font-family:'Noto Serif TC',serif;font-weight:700;font-size:16px;letter-spacing:1px}
+.nav-brand span{color:var(--accent)}
+.nav-links{display:flex;align-items:center;gap:28px;list-style:none}
+.nav-links a{font-size:13px;color:var(--gray);text-decoration:none;letter-spacing:.5px;transition:color .2s}
+.nav-links a:hover{color:var(--ink)}
+.nav-cta{background:var(--accent)!important;color:white!important;padding:8px 20px;font-weight:500!important}
+
+/* HERO */
+.hero{min-height:100vh;padding-top:60px;display:grid;grid-template-columns:1fr 1fr;position:relative;overflow:hidden}
+.hero-left{padding:80px 60px 80px 80px;display:flex;flex-direction:column;justify-content:center}
+.hero-right{background:var(--ink);padding:80px 60px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.hero-right::before{content:'';position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(192,57,43,.15) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%)}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:500;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:24px;animation:fadeUp .8s ease both}
+.eyebrow::before{content:'';width:24px;height:1px;background:var(--accent)}
+h1.hero-title{font-family:'Noto Serif TC',serif;font-size:clamp(34px,4.5vw,56px);font-weight:900;line-height:1.15;letter-spacing:-1px;margin-bottom:24px;animation:fadeUp .8s .1s ease both}
+h1.hero-title .line2{color:var(--accent);display:block}
+.hero-desc{font-size:16px;line-height:1.8;color:var(--gray);max-width:440px;margin-bottom:40px;animation:fadeUp .8s .2s ease both}
+.hero-actions{display:flex;gap:16px;flex-wrap:wrap;animation:fadeUp .8s .3s ease both}
+.btn-primary{background:var(--accent);color:white;padding:16px 32px;font-family:'Noto Sans TC',sans-serif;font-size:15px;font-weight:500;border:none;cursor:pointer;text-decoration:none;display:inline-block;transition:all .25s;letter-spacing:1px}
+.btn-primary:hover{background:var(--ink);transform:translateY(-2px);box-shadow:0 8px 24px rgba(192,57,43,.3)}
+.btn-secondary{background:transparent;color:var(--ink);padding:16px 32px;font-family:'Noto Sans TC',sans-serif;font-size:15px;border:1px solid var(--border);cursor:pointer;text-decoration:none;display:inline-block;transition:all .25s}
+.btn-secondary:hover{border-color:var(--ink);background:var(--warm)}
+.hero-stats{display:flex;gap:32px;margin-top:48px;padding-top:32px;border-top:1px solid var(--border);animation:fadeUp .8s .4s ease both}
+.stat-num{font-family:'Noto Serif TC',serif;font-size:28px;font-weight:700;line-height:1}
+.stat-label{font-size:11px;color:var(--gray);letter-spacing:.5px;margin-top:4px}
+
+/* MOCK UI */
+.mock-ui{width:100%;max-width:380px;position:relative;z-index:2;animation:fadeUp .8s .3s ease both}
+.mock-window{background:#1a1a2e;border:1px solid rgba(255,255,255,.1);box-shadow:0 32px 64px rgba(0,0,0,.5)}
+.mock-titlebar{background:rgba(255,255,255,.05);padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(255,255,255,.07)}
+.mock-dot{width:10px;height:10px;border-radius:50%}
+.mock-titlebar span{font-size:11px;color:rgba(255,255,255,.3);margin-left:8px;letter-spacing:.5px}
+.mock-body{padding:20px}
+.mock-risk-row{display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:8px;border-left:3px solid;background:rgba(255,255,255,.03);animation:slideRight .5s ease both}
+.mock-risk-row:nth-child(1){animation-delay:.6s;border-color:#e74c3c}
+.mock-risk-row:nth-child(2){animation-delay:.75s;border-color:#e74c3c}
+.mock-risk-row:nth-child(3){animation-delay:.9s;border-color:#e67e22}
+.mock-risk-row:nth-child(4){animation-delay:1.05s;border-color:#27ae60}
+.mock-risk-row:nth-child(5){animation-delay:1.2s;border-color:#95a5a6}
+.mock-emoji{font-size:14px}
+.mock-text{flex:1}
+.mock-label{font-size:11px;color:rgba(255,255,255,.8);font-weight:500}
+.mock-sub{font-size:10px;color:rgba(255,255,255,.3);margin-top:2px}
+.mock-badge{font-size:9px;padding:2px 7px;font-weight:500;letter-spacing:.5px}
+.badge-red{background:rgba(231,76,60,.2);color:#e74c3c}
+.badge-yellow{background:rgba(230,126,34,.2);color:#e67e22}
+.badge-green{background:rgba(39,174,96,.2);color:#27ae60}
+.badge-gray{background:rgba(255,255,255,.08);color:rgba(255,255,255,.4)}
+
+/* SECTIONS */
+.section-inner{max-width:1100px;margin:0 auto;padding:0 40px}
+.section-tag{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.section-tag::before{content:'';width:20px;height:1px;background:var(--accent)}
+.section-title{font-family:'Noto Serif TC',serif;font-size:clamp(26px,3vw,38px);font-weight:700;line-height:1.3;margin-bottom:48px}
+
+/* PAIN */
+.pain-section{background:var(--ink);padding:80px 0;color:white}
+.pain-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.08)}
+.pain-card{background:var(--ink);padding:36px 32px;transition:background .2s}
+.pain-card:hover{background:#1a1a2e}
+.pain-icon{font-size:28px;margin-bottom:16px}
+.pain-title{font-family:'Noto Serif TC',serif;font-size:17px;font-weight:600;margin-bottom:10px;color:white}
+.pain-desc{font-size:13px;color:rgba(255,255,255,.5);line-height:1.8}
+
+/* FEATURES */
+.features-section{padding:100px 0;background:var(--paper)}
+.features-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-bottom:80px}
+.feature-visual{background:var(--warm);border:1px solid var(--border);padding:32px}
+.feature-tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.feature-title{font-family:'Noto Serif TC',serif;font-size:26px;font-weight:700;line-height:1.3;margin-bottom:16px}
+.feature-desc{font-size:14px;color:var(--gray);line-height:1.9;margin-bottom:24px}
+.feature-list{list-style:none}
+.feature-list li{font-size:13px;color:var(--gray);padding:8px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.feature-list li::before{content:'✓';color:var(--green);font-weight:700;flex-shrink:0}
+.check-list-visual{display:flex;flex-direction:column;gap:8px}
+.check-item-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:white;border:1px solid var(--border);font-size:13px}
+.check-icon{font-size:16px;flex-shrink:0}
+.check-item-text{flex:1;font-size:12px;color:var(--ink)}
+.risk-pill{font-size:10px;padding:3px 8px;font-weight:500}
+.pill-red{background:#fde8e8;color:var(--accent)}
+.pill-yellow{background:#fef3e8;color:#e67e22}
+.pill-green{background:#e8f8f2;color:var(--green)}
+.pill-gray{background:var(--light-gray);color:var(--gray)}
+.template-list-visual{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.template-card-mini{background:white;border:1px solid var(--border);padding:16px;cursor:pointer;transition:all .2s}
+.template-card-mini:hover{border-color:var(--accent);transform:translateY(-2px)}
+.tcm-icon{font-size:20px;margin-bottom:8px}
+.tcm-title{font-size:12px;font-weight:500;margin-bottom:4px}
+.tcm-sub{font-size:10px;color:var(--gray)}
+
+/* PRICING */
+.pricing-section{background:var(--warm);padding:100px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--border);margin-top:48px}
+.pricing-card{background:var(--paper);padding:40px 32px;position:relative;transition:transform .2s}
+.pricing-card:hover{transform:translateY(-4px)}
+.pricing-card.featured{background:var(--ink);color:white}
+.plan-tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:12px}
+.pricing-card.featured .plan-tag{color:rgba(255,255,255,.5)}
+.popular-badge{position:absolute;top:-1px;right:20px;background:var(--accent);color:white;font-size:10px;padding:4px 12px;letter-spacing:1px;font-weight:500}
+.plan-name{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;margin-bottom:8px}
+.plan-price{font-family:'Noto Serif TC',serif;font-size:44px;font-weight:900;line-height:1;margin-bottom:4px}
+.plan-price sup{font-size:18px;vertical-align:top;margin-top:10px;display:inline-block}
+.plan-period{font-size:12px;color:var(--gray);margin-bottom:32px}
+.pricing-card.featured .plan-period{color:rgba(255,255,255,.5)}
+.plan-features{list-style:none;margin-bottom:32px}
+.plan-features li{font-size:13px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.06);display:flex;align-items:center;gap:10px;color:var(--gray)}
+.pricing-card.featured .plan-features li{color:rgba(255,255,255,.7);border-bottom-color:rgba(255,255,255,.08)}
+.plan-features li .check{color:var(--green);font-weight:700;flex-shrink:0}
+.pricing-card.featured .plan-features li .check{color:#2ecc71}
+.plan-features li .cross{color:var(--border);flex-shrink:0}
+.plan-cta{display:block;text-align:center;padding:14px;font-size:14px;font-weight:500;letter-spacing:1px;cursor:pointer;text-decoration:none;transition:all .2s;border:none;font-family:'Noto Sans TC',sans-serif}
+.cta-outline{border:1px solid var(--border);background:transparent;color:var(--ink)}
+.cta-outline:hover{border-color:var(--ink);background:var(--warm)}
+.cta-filled{background:var(--accent);color:white}
+.cta-filled:hover{background:var(--accent2)}
+.cta-white{background:white;color:var(--ink)}
+.cta-white:hover{background:var(--warm)}
+
+/* TESTIMONIALS */
+.testimonials-section{padding:100px 0;background:var(--paper)}
+.testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+.testimonial-card{background:var(--warm);border:1px solid var(--border);padding:28px;position:relative}
+.testimonial-card::before{content:'"';font-family:'Noto Serif TC',serif;font-size:64px;color:var(--border);position:absolute;top:12px;right:20px;line-height:1}
+.testimonial-text{font-size:14px;line-height:1.9;color:var(--ink);margin-bottom:20px;position:relative;z-index:1}
+.testimonial-author{display:flex;align-items:center;gap:12px}
+.author-avatar{width:36px;height:36px;background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif TC',serif;font-size:14px;font-weight:700;flex-shrink:0}
+.author-name{font-size:13px;font-weight:500}
+.author-role{font-size:11px;color:var(--gray);margin-top:2px}
+
+/* FAQ */
+.faq-section{background:var(--ink);padding:80px 0;color:white}
+.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:48px}
+.faq-item{border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:28px}
+.faq-q{font-family:'Noto Serif TC',serif;font-size:16px;font-weight:600;margin-bottom:10px;color:white}
+.faq-a{font-size:13px;color:rgba(255,255,255,.5);line-height:1.8}
+
+/* CTA BANNER */
+.cta-banner{padding:100px 0;background:var(--accent);text-align:center;color:white}
+.cta-banner h2{font-family:'Noto Serif TC',serif;font-size:clamp(28px,4vw,46px);font-weight:900;line-height:1.2;margin-bottom:16px}
+.cta-banner p{font-size:16px;opacity:.85;margin-bottom:40px}
+.btn-white{background:white;color:var(--accent);padding:18px 48px;font-family:'Noto Sans TC',sans-serif;font-size:16px;font-weight:700;border:none;cursor:pointer;text-decoration:none;display:inline-block;letter-spacing:1px;transition:all .25s}
+.btn-white:hover{background:var(--ink);color:white;transform:translateY(-2px)}
+
+/* FOOTER */
+footer{background:#0a0a0f;color:rgba(255,255,255,.4);padding:48px 0 32px}
+.footer-inner{max-width:1100px;margin:0 auto;padding:0 40px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px}
+.footer-brand{font-family:'Noto Serif TC',serif;font-size:18px;font-weight:700;color:white}
+.footer-brand span{color:var(--accent)}
+.footer-links{display:flex;gap:24px;list-style:none}
+.footer-links a{color:rgba(255,255,255,.4);text-decoration:none;font-size:12px;letter-spacing:.5px;transition:color .2s}
+.footer-links a:hover{color:white}
+.footer-copy{font-size:11px;letter-spacing:.5px;width:100%;padding-top:24px;border-top:1px solid rgba(255,255,255,.06);text-align:center}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideRight{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr}
+  .hero-right{display:none}
+  .hero-left{padding:60px 24px}
+  .pain-grid,.pricing-grid,.testimonials-grid,.faq-grid,.features-grid{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .section-inner{padding:0 24px}
+  nav{padding:0 24px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">勞資<span>小幫手</span></div>
+  <ul class="nav-links">
+    <li><a href="#features">功能</a></li>
+    <li><a href="#pricing">方案</a></li>
+    <li><a href="#faq">常見問題</a></li>
+    <li><a href="index.html" class="nav-cta">免費試用</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="eyebrow">NGO 專屬勞務合規工具</div>
+    <h1 class="hero-title">合約有問題，<span class="line2">AI 3秒告訴你</span></h1>
+    <p class="hero-desc">專為台灣小型 NGO 設計。貼上合約文字，立即檢查兼職人員合約是否違反勞動基準法，省下律師費、避開勞資糾紛。</p>
+    <div class="hero-actions">
+      <a href="index.html" class="btn-primary">免費開始使用 →</a>
+      <a href="templates.html" class="btn-secondary">查看合約範本</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item"><div class="stat-num">10</div><div class="stat-label">大必查項目</div></div>
+      <div class="stat-item"><div class="stat-num">3秒</div><div class="stat-label">完成風險分析</div></div>
+      <div class="stat-item"><div class="stat-num">0元</div><div class="stat-label">免費方案起</div></div>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="mock-ui">
+      <div class="mock-window">
+        <div class="mock-titlebar">
+          <div class="mock-dot" style="background:#ff5f57"></div>
+          <div class="mock-dot" style="background:#febc2e"></div>
+          <div class="mock-dot" style="background:#28c840"></div>
+          <span>合約風險分析報告</span>
+        </div>
+        <div class="mock-body">
+          <div class="mock-risk-row"><div class="mock-emoji">💰</div><div class="mock-text"><div class="mock-label">工資低於基本工資</div><div class="mock-sub">時薪 150 元 &lt; 法定 183 元</div></div><div class="mock-badge badge-red">🔴 高風險</div></div>
+          <div class="mock-risk-row"><div class="mock-emoji">🚫</div><div class="mock-text"><div class="mock-label">無效放棄加班費條款</div><div class="mock-sub">勞基法 §71 無效約定</div></div><div class="mock-badge badge-red">🔴 高風險</div></div>
+          <div class="mock-risk-row"><div class="mock-emoji">📋</div><div class="mock-text"><div class="mock-label">假承攬真僱傭疑慮</div><div class="mock-sub">實質指揮監督關係存在</div></div><div class="mock-badge badge-yellow">🟡 中風險</div></div>
+          <div class="mock-risk-row"><div class="mock-emoji">✅</div><div class="mock-text"><div class="mock-label">工時規定</div><div class="mock-sub">每週 25 小時，符合規定</div></div><div class="mock-badge badge-green">🟢 符合</div></div>
+          <div class="mock-risk-row"><div class="mock-emoji">⚪</div><div class="mock-text"><div class="mock-label">勞健保投保</div><div class="mock-sub">合約未提及，建議補充</div></div><div class="mock-badge badge-gray">⚪ 未提及</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PAIN POINTS -->
+<section class="pain-section">
+  <div class="section-inner">
+    <div class="section-tag">你是否也有這些困擾</div>
+    <h2 class="section-title">NGO 最常見的三個勞資地雷</h2>
+    <div class="pain-grid">
+      <div class="pain-card"><div class="pain-icon">💸</div><div class="pain-title">請了律師才發現，早就違法了</div><div class="pain-desc">一次諮詢費 3,000 元起，等發生糾紛才找律師，往往已造成難以挽回的損失。</div></div>
+      <div class="pain-card"><div class="pain-icon">📄</div><div class="pain-title">合約從網路抓的，沒有人審查</div><div class="pain-desc">小型 NGO 沒有人事部門，合約格式從朋友那借來，根本不知道有沒有問題。</div></div>
+      <div class="pain-card"><div class="pain-icon">⚖️</div><div class="pain-title">收到勞工局函文才驚覺</div><div class="pain-desc">兼職人員投訴後，勞工局介入才發現多項違法，罰款加上補償金讓組織雪上加霜。</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section" id="features">
+  <div class="section-inner">
+    <div class="features-grid">
+      <div>
+        <div class="feature-tag">核心功能 01</div>
+        <h3 class="feature-title">10 大勞基法項目<br>逐條自動比對</h3>
+        <p class="feature-desc">從工資、工時、假勤到競業禁止，AI 一次掃描，不漏掉任何細節。每個風險項目都附上對應法條與修改建議。</p>
+        <ul class="feature-list">
+          <li>工資是否低於基本工資</li>
+          <li>假承攬真僱傭風險判斷</li>
+          <li>無效約定條款自動標記</li>
+          <li>缺漏條款提醒補充</li>
+        </ul>
+      </div>
+      <div class="feature-visual">
+        <div class="check-list-visual">
+          <div class="check-item-row"><div class="check-icon">💰</div><div class="check-item-text">工資（時薪／月薪）</div><div class="risk-pill pill-red">🔴 高風險</div></div>
+          <div class="check-item-row"><div class="check-icon">⏰</div><div class="check-item-text">工時與加班費</div><div class="risk-pill pill-red">🔴 高風險</div></div>
+          <div class="check-item-row"><div class="check-icon">📋</div><div class="check-item-text">契約性質認定</div><div class="risk-pill pill-yellow">🟡 中風險</div></div>
+          <div class="check-item-row"><div class="check-icon">🏥</div><div class="check-item-text">勞健保投保義務</div><div class="risk-pill pill-gray">⚪ 未提及</div></div>
+          <div class="check-item-row"><div class="check-icon">📅</div><div class="check-item-text">例假與休假規定</div><div class="risk-pill pill-green">🟢 符合</div></div>
+          <div class="check-item-row"><div class="check-icon">🚪</div><div class="check-item-text">終止契約預告期</div><div class="risk-pill pill-green">🟢 符合</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="features-grid" style="margin-top:80px">
+      <div class="feature-visual">
+        <div class="template-list-visual">
+          <div class="template-card-mini"><div class="tcm-icon">📝</div><div class="tcm-title">兼職行政人員</div><div class="tcm-sub">勞動契約 · 合規版</div></div>
+          <div class="template-card-mini"><div class="tcm-icon">💻</div><div class="tcm-title">專案承攬合約</div><div class="tcm-sub">承攬契約 · 合規版</div></div>
+          <div class="template-card-mini"><div class="tcm-icon">🎤</div><div class="tcm-title">講師授課合約</div><div class="tcm-sub">勞務報酬 · 合規版</div></div>
+          <div class="template-card-mini"><div class="tcm-icon">🤝</div><div class="tcm-title">志工服務合約</div><div class="tcm-sub">志願服務 · 合規版</div></div>
+        </div>
+      </div>
+      <div>
+        <div class="feature-tag">核心功能 02</div>
+        <h3 class="feature-title">即用合約範本庫<br>直接套用修改</h3>
+        <p class="feature-desc">收錄 NGO 最常見的六種合約範本，可直接下載修改使用，不用從頭寫起，降低出錯風險。</p>
+        <ul class="feature-list">
+          <li>兼職行政人員合約</li>
+          <li>專案承攬合約（真正承攬）</li>
+          <li>講師授課合約</li>
+          <li>志工服務合約</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="pricing">
+  <div class="section-inner">
+    <div class="section-tag">方案選擇</div>
+    <h2 class="section-title">找到適合你們組織的方案</h2>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="plan-tag">STARTER</div>
+        <div class="plan-name">免費方案</div>
+        <div class="plan-price"><sup>NT$</sup>0</div>
+        <div class="plan-period">永久免費，需自備 API Key</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> 每月無限次合約檢查</li>
+          <li><span class="check">✓</span> 10 大勞基法項目分析</li>
+          <li><span class="check">✓</span> 風險等級標示</li>
+          <li><span class="cross">✗</span> 合約範本庫</li>
+          <li><span class="cross">✗</span> PDF 報告匯出</li>
+          <li><span class="cross">✗</span> 優先客服支援</li>
+        </ul>
+        <a href="index.html" class="plan-cta cta-outline">立即免費使用</a>
+      </div>
+      <div class="pricing-card featured">
+        <div class="popular-badge">最受歡迎</div>
+        <div class="plan-tag">PRO</div>
+        <div class="plan-name">進階方案</div>
+        <div class="plan-price"><sup>NT$</sup>299</div>
+        <div class="plan-period">每月 / 年繳享 85 折</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> 無限次合約檢查</li>
+          <li><span class="check">✓</span> 全部分析功能</li>
+          <li><span class="check">✓</span> 6 套合規合約範本</li>
+          <li><span class="check">✓</span> PDF 報告一鍵匯出</li>
+          <li><span class="check">✓</span> 合約修改建議追蹤</li>
+          <li><span class="cross" style="color:rgba(255,255,255,.2)">✗</span> 白標授權</li>
+        </ul>
+        <a href="mailto:hello@example.com" class="plan-cta cta-white">立即訂閱</a>
+      </div>
+      <div class="pricing-card">
+        <div class="plan-tag">ORGANIZATION</div>
+        <div class="plan-name">組織方案</div>
+        <div class="plan-price"><sup>NT$</sup>999</div>
+        <div class="plan-period">每月 / 最多 5 位成員</div>
+        <ul class="plan-features">
+          <li><span class="check">✓</span> 進階方案全部功能</li>
+          <li><span class="check">✓</span> 5 位帳號共用</li>
+          <li><span class="check">✓</span> 客製化合約範本</li>
+          <li><span class="check">✓</span> 年度勞基法更新報告</li>
+          <li><span class="check">✓</span> 電話優先支援</li>
+          <li><span class="check">✓</span> NPO 公益優惠可申請</li>
+        </ul>
+        <a href="mailto:hello@example.com" class="plan-cta cta-outline">聯絡洽詢</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials-section">
+  <div class="section-inner">
+    <div class="section-tag">用戶回饋</div>
+    <h2 class="section-title">他們已經在用了</h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card"><p class="testimonial-text">以前每次要請兼職都很緊張，不知道合約有沒有問題。用了這個工具之後，5分鐘就搞定，安心多了。</p><div class="testimonial-author"><div class="author-avatar">林</div><div><div class="author-name">林小姐</div><div class="author-role">台南某環境倡議組織 · 行政主任</div></div></div></div>
+      <div class="testimonial-card"><p class="testimonial-text">我們組織規模很小，沒有能力養法務。這個工具幫我們把最基本的風險過濾掉，真的很實用。</p><div class="testimonial-author"><div class="author-avatar">陳</div><div><div class="author-name">陳先生</div><div class="author-role">新北某社福機構 · 執行長</div></div></div></div>
+      <div class="testimonial-card"><p class="testimonial-text">發現我們舊有合約有三個高風險項目，馬上修改。工具給的建議很具體，不是空泛的「請諮詢律師」。</p><div class="testimonial-author"><div class="author-avatar">王</div><div><div class="author-name">王小姐</div><div class="author-role">台北某倡議團體 · 專案主任</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq-section" id="faq">
+  <div class="section-inner">
+    <div class="section-tag">常見問題</div>
+    <h2 class="section-title" style="color:white">你可能想知道的事</h2>
+    <div class="faq-grid">
+      <div class="faq-item"><div class="faq-q">AI 的分析準確嗎？</div><div class="faq-a">AI 能有效抓出明顯違法條款，準確率高。灰色地帶建議搭配人工判斷，高風險案例仍建議撥打 1955 勞工諮詢專線確認。</div></div>
+      <div class="faq-item"><div class="faq-q">我的合約內容會被儲存嗎？</div><div class="faq-a">免費版使用您自己的 Google API Key，合約內容直接傳送給 Google，不經過我們的伺服器。付費版採用加密傳輸，不永久儲存合約內容。</div></div>
+      <div class="faq-item"><div class="faq-q">法規更新了，工具會同步嗎？</div><div class="faq-a">我們每年 1 月更新一次基本工資等數字，重大法規修訂時即時更新。付費用戶會收到年度勞基法更新報告。</div></div>
+      <div class="faq-item"><div class="faq-q">有提供 NPO 公益優惠嗎？</div><div class="faq-a">有。符合資格的立案非營利組織可申請最高 5 折的公益優惠方案，請透過 email 提交申請。</div></div>
+      <div class="faq-item"><div class="faq-q">只有兼職合約可以用嗎？</div><div class="faq-a">工具以兼職合約為主要設計對象，但全職勞動契約同樣適用。承攬契約也可以檢查假承攬真僱傭的風險。</div></div>
+      <div class="faq-item"><div class="faq-q">合約範本可以直接用嗎？</div><div class="faq-a">範本為通用版本，實際使用前建議依照組織需求調整，特殊情況建議諮詢專業人士。</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-banner">
+  <div class="section-inner">
+    <h2>現在就開始，免費使用</h2>
+    <p>不需要信用卡，準備好 Google API Key 就可以開始</p>
+    <a href="index.html" class="btn-white">免費開始檢查合約 →</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">勞資<span>小幫手</span></div>
+    <ul class="footer-links">
+      <li><a href="index.html">合約檢查器</a></li>
+      <li><a href="templates.html">合約範本庫</a></li>
+      <li><a href="#pricing">訂閱方案</a></li>
+      <li><a href="mailto:hello@example.com">聯絡我們</a></li>
+    </ul>
+    <div class="footer-copy">© 2024 NGO 勞資小幫手｜本工具提供參考意見，不構成正式法律建議｜Powered by Google Gemini AI</div>
+  </div>
+</footer>
+
+</body>
+</html>
