@@ -583,36 +583,29 @@
   <div class="howto">
     <div class="howto-step">
       <div class="step-num">01</div>
-      <div class="step-title">取得 API 金鑰</div>
-      <div class="step-desc">至 Google AI Studio 申請免費 Gemini API Key</div>
-    </div>
-    <div class="howto-step">
-      <div class="step-num">02</div>
       <div class="step-title">貼上合約內容</div>
       <div class="step-desc">將兼職合約文字複製貼入下方欄位</div>
     </div>
     <div class="howto-step">
+      <div class="step-num">02</div>
+      <div class="step-title">點擊開始檢查</div>
+      <div class="step-desc">AI 自動比對 2026 最新勞動法規</div>
+    </div>
+    <div class="howto-step">
       <div class="step-num">03</div>
-      <div class="step-title">自動分析</div>
-      <div class="step-desc">AI 逐條比對勞基法，標示風險等級</div>
+      <div class="step-title">查看風險分析</div>
+      <div class="step-desc">逐條標示風險等級與修改建議</div>
     </div>
     <div class="howto-step">
       <div class="step-num">04</div>
-      <div class="step-title">獲得建議</div>
-      <div class="step-desc">取得修改方向，必要時諮詢勞工局</div>
+      <div class="step-title">必要時諮詢專業</div>
+      <div class="step-desc">高風險項目建議撥打 1955 確認</div>
     </div>
   </div>
 
-  <!-- API Key -->
-  <div class="api-section">
-    <label>🔑 Google Gemini API Key</label>
-    <div class="api-row">
-      <input type="password" id="apiKey" placeholder="貼上您的 Gemini API Key（AIza...）" autocomplete="off">
-    </div>
-    <div class="api-hint">
-      免費申請：<a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com/app/apikey</a>
-      ｜金鑰僅在您的瀏覽器中使用，不會上傳至任何伺服器
-    </div>
+  <!-- API Key 隱藏，內建 Key -->
+  <div style="display:none">
+    <input type="password" id="apiKey" value="AIzaSyBqIKdU50LrMMF8-_DF8SHvNXI6VB33f2o">
   </div>
 
   <!-- Input -->
