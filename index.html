@@ -6,13 +6,8 @@
     <title>NGO 勞資小幫手 | 2026 守護您的公益初心</title>
     <!-- 載入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 載入 React 與 Babel (用於瀏覽器直接解析 JSX) -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- 載入 Lucide 圖示庫 -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/lucide-react@latest"></script>
+    <!-- 載入 Font Awesome 圖示 (比 Lucide 更穩定於純 HTML 環境) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
@@ -23,374 +18,325 @@
         }
         .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none; }
+        .modal-active { overflow: hidden; }
+        .faq-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .faq-active .faq-content { max-height: 300px; }
+        .faq-active .faq-icon { transform: rotate(180deg); }
     </style>
 </head>
-<body>
-    <div id="root"></div>
+<body class="text-slate-800">
 
-    <script type="text/babel">
-        const { useState, useRef } = React;
-        const { 
-            ShieldCheck, AlertTriangle, CheckCircle2, FileText, Users, Clock, Mail, 
-            ArrowRight, Lock, Calendar, CreditCard, X, ShieldAlert, Info, 
-            ChevronDown, HelpCircle, Download, Stethoscope, ExternalLink, ShieldHalf
-        } = LucideReact;
+    <!-- 隱私頂部條 -->
+    <div class="bg-[#E6F4F1] border-b border-teal-100 py-2 text-center text-[10px] md:text-xs text-teal-700 flex items-center justify-center gap-2 font-medium">
+        <i class="fas fa-lock text-[10px]"></i> 技術安全性承諾：合約解析僅在本地瀏覽器完成，數據絕不傳輸至伺服器。
+    </div>
 
-        const App = () => {
-            const [contractText, setContractText] = useState('');
-            const [results, setResults] = useState(null);
-            const [showModal, setShowModal] = useState(null);
-            const [openFaq, setOpenFaq] = useState(null);
-            const resultRef = useRef(null);
+    <!-- 首頁區塊 -->
+    <header class="bg-gradient-to-br from-[#134E4A] to-[#0F766E] text-white pt-16 pb-28 px-6 relative text-center">
+        <div class="max-w-4xl mx-auto">
+            <div class="inline-flex items-center gap-2 bg-teal-400/20 px-4 py-1 rounded-full text-teal-300 text-[10px] font-bold mb-6 tracking-wider uppercase">
+                <i class="fas fa-shield-halved"></i> 2026 NGO 勞資合規守護夥伴
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold mb-8 leading-tight">
+                深耕醫療與長照體系，<br />打造最懂 NGO 溫度的「法律防彈衣」
+            </h1>
+            <p class="text-teal-50/80 text-lg mb-10 max-w-2xl mx-auto leading-relaxed font-light">
+                我們將十年的醫療人資實務，轉化為您能輕鬆上手的護航工具。<br />在追求公益的路上，讓我們為您守護「組織的安全」。
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <button onclick="document.getElementById('checker').scrollIntoView({behavior: 'smooth'})" class="bg-[#F59E0B] text-white px-10 py-4 rounded-full font-bold hover:bg-[#D97706] transition shadow-xl">
+                    立即開始免費診斷
+                </button>
+                <button onclick="openModal('download')" class="bg-white/10 backdrop-blur-sm text-white border border-white/20 px-10 py-4 rounded-full font-bold hover:bg-white/20 transition flex items-center gap-2">
+                    <i class="fas fa-download"></i> 領取合規查檢表
+                </button>
+            </div>
+        </div>
+    </header>
 
-            const checkContract = () => {
-                if (!contractText.trim()) {
-                    alert('請先輸入合約條款文字進行分析。');
-                    return;
-                }
-                let foundRisks = [];
-                let highRiskCount = 0;
-                
-                // 2026 薪資判斷正則
-                const wageRegex = /\b(1[0-8][0-9]|19[0-5])\b|(\b([1-9]\d{3}|2[0-8]\d{3}|29[0-4]\d{2})\b)/g;
-                if (wageRegex.test(contractText)) {
-                    foundRisks.push({
-                        type: 'high',
-                        title: '薪資水位預警',
-                        desc: '偵測到數額疑似低於 2026 法定標準（時薪 $196 / 月薪 $29,500）。請務必修正以避免面臨勞基法處分。'
-                    });
-                    highRiskCount++;
-                }
-                
-                // 實質僱傭判斷
-                if ((contractText.includes('承攬') || contractText.includes('委任')) && 
-                    (contractText.includes('打卡') || contractText.includes('指揮') || contractText.includes('監督'))) {
-                    foundRisks.push({
-                        type: 'high',
-                        title: '實質僱傭判定風險',
-                        desc: '合約標題雖為承攬，但內文顯示組織具備指揮監督權。一旦發生爭議，極大機率被判定為僱傭，需補提撥 6% 勞退與補繳勞健保費。'
-                    });
-                    highRiskCount++;
-                }
+    <main class="max-w-6xl mx-auto px-6 -mt-16 relative z-20 pb-20">
+        
+        <!-- 診斷器區塊 -->
+        <section id="checker" class="bg-white rounded-[2.5rem] shadow-2xl p-8 md:p-12 mb-20 border border-teal-50 animate-fade-in">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="p-4 bg-teal-50 text-teal-600 rounded-3xl"><i class="fas fa-file-lines text-2xl"></i></div>
+                <h2 class="text-2xl font-bold text-teal-900">2026 合約自動風險診斷器</h2>
+            </div>
+            <textarea id="contractInput" class="w-full h-72 p-8 bg-slate-50 border-2 border-slate-100 rounded-[2rem] focus:ring-4 focus:ring-teal-100 outline-none transition mb-8 text-lg" 
+                placeholder="請在此貼上您的合約草案條款（例如：薪資180元、需配合主管打卡、放棄加班費...）"></textarea>
+            <button onclick="checkContract()" class="w-full bg-teal-600 text-white py-5 rounded-2xl font-bold text-xl hover:bg-teal-700 shadow-lg flex items-center justify-center gap-2 transition-all">
+                掃描潛在法律風險 <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        </section>
 
-                setResults({ risks: foundRisks, highRiskCount });
-                setTimeout(() => { resultRef.current?.scrollIntoView({ behavior: 'smooth' }); }, 100);
-            };
-
-            const templates = [
-                "核心：正職人員不定期勞動契約", "行政：兼職助理定期勞動契約", 
-                "專業：專案承攬/委任契約範本", "教學：外部講師勞務報酬合約單",
-                "公益：志願服務協議書 (依志服法)", "行銷：社群小編/行銷承攬合約",
-                "後勤：清潔/接送勞務委託單"
-            ];
-
-            const faqs = [
-                { q: "個人顧問費用是可以報帳的嗎？", a: "絕對可以。您可以開立「勞務報酬單」並簽名。對於 NGO 來說，這與發票具備同等入帳效力，機構只需依 9A 執行業務所得進行申報。我提供的範本庫中也包含標準的報酬單格式供您直接使用。" },
-                { q: "長照據點的居服員可以簽承攬契約嗎？", a: "這涉及極高風險。居服員的工作通常具高度指揮監督性質，且需符合法規申報，實務上極大機率被判定為「僱傭」，建議使用我提供的正職/兼職勞動契約修改。" },
-                { q: "合約診斷真的不會洩漏資料嗎？", a: "是的，本工具 100% 在您的瀏覽器本地運行。程式邏輯就在您的裝置上，數據絕不傳輸至伺服器，您可以完全放心使用。" }
-            ];
-
-            const handleEmailClick = (subject) => {
-                window.location.href = `mailto:ngolaborhelper@gmail.com?subject=${encodeURIComponent(subject)}`;
-            };
-
-            return (
-                <div className="min-h-screen bg-[#FDFBF7] text-slate-800">
-                    {/* Top Security Banner */}
-                    <div className="bg-[#E6F4F1] border-b border-teal-100 py-2 text-center text-[10px] md:text-xs text-teal-700 flex items-center justify-center gap-2 font-medium">
-                        <Lock size={12} /> 安全承諾：合約解析僅在本地運行，數據絕不離開您的裝置。
-                    </div>
-
-                    {/* Hero Section */}
-                    <header className="bg-gradient-to-br from-[#134E4A] to-[#0F766E] text-white pt-16 pb-28 px-6 relative text-center">
-                        <div className="max-w-4xl mx-auto">
-                            <div className="inline-flex items-center gap-2 bg-teal-400/20 px-4 py-1 rounded-full text-teal-300 text-[10px] font-bold mb-6 tracking-wider uppercase">
-                                <ShieldCheck size={14} /> 2026 NGO 勞資合規守護夥伴
-                            </div>
-                            <h1 className="text-4xl md:text-5xl font-bold mb-8 leading-tight">
-                                深耕醫療與長照體系，<br />打造最懂 NGO 溫度的「法律防彈衣」
-                            </h1>
-                            <p className="text-teal-50/80 text-lg mb-10 max-w-2xl mx-auto leading-relaxed font-light">
-                                我們將十年的醫療人資實務，轉化為您能輕鬆上手的護航工具。<br />在追求公益的路上，讓我們為您守護「組織的安全」。
-                            </p>
-                            <div className="flex flex-wrap justify-center gap-4">
-                                <button onClick={() => document.getElementById('checker').scrollIntoView({behavior: 'smooth'})} className="bg-[#F59E0B] text-white px-10 py-4 rounded-full font-bold hover:bg-[#D97706] transition shadow-xl">
-                                    立即開始免費診斷
-                                </button>
-                                <button onClick={() => setShowModal('download')} className="bg-white/10 backdrop-blur-sm text-white border border-white/20 px-10 py-4 rounded-full font-bold hover:bg-white/20 transition flex items-center gap-2">
-                                    <Download size={18} /> 領取合規查檢表
-                                </button>
-                            </div>
-                        </div>
-                    </header>
-
-                    <main className="max-w-6xl mx-auto px-6 -mt-16 relative z-20 pb-20">
-                        
-                        {/* Checker Section */}
-                        <section id="checker" className="bg-white rounded-[2.5rem] shadow-2xl p-8 md:p-12 mb-20 border border-teal-50">
-                            <div className="flex items-center gap-4 mb-8">
-                                <div className="p-4 bg-teal-50 text-teal-600 rounded-3xl"><FileText size={28} /></div>
-                                <h2 className="text-2xl font-bold text-teal-900 font-bold">2026 合約自動風險診斷器</h2>
-                            </div>
-                            <textarea 
-                                className="w-full h-72 p-8 bg-slate-50 border-2 border-slate-100 rounded-[2rem] focus:ring-4 focus:ring-teal-100 outline-none transition mb-8 text-lg"
-                                placeholder="請在此貼上您的合約草案條款（例如：薪資180元、需配合主管打卡、放棄加班費...）"
-                                value={contractText}
-                                onChange={(e) => setContractText(e.target.value)}
-                            ></textarea>
-                            <button onClick={checkContract} className="w-full bg-teal-600 text-white py-5 rounded-2xl font-bold text-xl hover:bg-teal-700 shadow-lg flex items-center justify-center gap-2 transition-all">
-                                掃描潛在法律風險 <ArrowRight size={20} />
-                            </button>
-                        </section>
-
-                        {/* Results UI */}
-                        {results && (
-                            <section ref={resultRef} className="animate-fade-in mb-24">
-                                <div className="bg-white rounded-[2.5rem] shadow-2xl p-10 border border-teal-50 overflow-hidden">
-                                    <h3 className="text-2xl font-bold mb-8 italic">診斷報告：{results.risks.length === 0 ? '✅ 狀況良好' : `⚠️ 偵測到 ${results.risks.length} 處風險熱點`}</h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                                        {results.risks.length > 0 ? results.risks.map((risk, i) => (
-                                            <div key={i} className={`p-6 rounded-3xl border-l-8 ${risk.type === 'high' ? 'bg-red-50 border-red-500' : 'bg-amber-50 border-amber-400'} text-slate-800`}>
-                                                <h4 className="font-bold mb-2 flex items-center gap-2"><AlertTriangle size={18} /> {risk.title}</h4>
-                                                <p className="text-sm opacity-80 leading-relaxed">{risk.desc}</p>
-                                            </div>
-                                        )) : (
-                                            <div className="col-span-full py-12 text-center bg-teal-50 rounded-3xl border border-teal-100">
-                                                <CheckCircle2 className="mx-auto text-teal-500 mb-4" size={48} />
-                                                <p className="font-bold text-teal-800">目前關鍵字對比未發現異常。建議仍應參考專業範本確保 100% 合規。</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="bg-teal-900 text-white p-10 rounded-[2.5rem] text-center">
-                                        <h4 className="text-xl font-bold mb-4 italic">修正漏洞，現在只需 5 分鐘</h4>
-                                        <p className="opacity-70 mb-8 text-sm max-w-xl mx-auto leading-relaxed">自動掃描僅能抓出顯性錯誤。NGO 常見的「經費核銷」與「衛政申報」合規細節，建議使用我為您設計的完整範本庫。</p>
-                                        <button onClick={() => document.getElementById('plans').scrollIntoView({behavior: 'smooth'})} className="bg-amber-500 text-white px-12 py-3 rounded-full font-bold shadow-lg">瀏覽專業守護方案</button>
-                                    </div>
-                                </div>
-                            </section>
-                        )}
-
-                        {/* Pitfalls Section */}
-                        <section className="mb-24 px-4">
-                            <div className="text-center mb-16">
-                                <h2 className="text-3xl font-bold text-slate-800 mb-4 italic underline underline-offset-8 decoration-teal-500/30">NGO 勞資常見地雷解析</h2>
-                                <p className="text-slate-500">真實發生的風險案例，正在損耗組織的預算與公信力</p>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
-                                <div className="bg-white p-8 rounded-[2rem] shadow-md border border-slate-50 transform hover:-translate-y-1 transition-transform border-t-8 border-t-red-400">
-                                    <div className="bg-red-50 text-red-600 w-12 h-12 rounded-2xl flex items-center justify-center mb-4"><AlertTriangle /></div>
-                                    <h4 className="font-bold mb-2">志工領取「固定車馬費」</h4>
-                                    <p className="text-xs text-slate-500 leading-relaxed">每月定額支付 5,000 元，而非憑票核銷。離職時員工若主張這是工資，組織極大機率須補提撥 6% 勞退與資遣費。</p>
-                                </div>
-                                <div className="bg-white p-8 rounded-[2rem] shadow-md border border-slate-50 transform hover:-translate-y-1 transition-transform border-t-8 border-t-red-400">
-                                    <div className="bg-red-50 text-red-600 w-12 h-12 rounded-2xl flex items-center justify-center mb-4"><AlertTriangle /></div>
-                                    <h4 className="font-bold mb-2">計畫結束即「自動離職」</h4>
-                                    <p className="text-xs text-slate-500 leading-relaxed">誤以為專案經費結束合約就失效。若未正確簽署「定期契約」且未付資遣費，將面臨違反勞動基準法之行政罰緩。</p>
-                                </div>
-                                <div className="bg-white p-8 rounded-[2rem] shadow-md border border-slate-50 transform hover:-translate-y-1 transition-transform border-t-8 border-t-red-400">
-                                    <div className="bg-red-50 text-red-600 w-12 h-12 rounded-2xl flex items-center justify-center mb-4"><AlertTriangle /></div>
-                                    <h4 className="font-bold mb-2">薪資「內含」加班費</h4>
-                                    <p className="text-xs text-slate-500 leading-relaxed">未於合約拆分本薪與加班費比例。若遭員工追討，組織因無法舉證已支付各項法定倍數，往往需全額補發造成預算缺口。</p>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* Pricing Section */}
-                        <section id="plans" className="py-16 text-center">
-                            <h2 className="text-4xl font-bold text-slate-800 mb-16">選擇適合您的守護方案</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
-                                
-                                {/* Plan: Bundle */}
-                                <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border-4 border-teal-500 relative flex flex-col transform hover:scale-[1.02] transition-all">
-                                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-teal-500 text-white px-6 py-1 rounded-full text-xs font-bold shadow-md uppercase tracking-widest">組織防禦必備</div>
-                                    <h3 className="text-xl font-bold mb-2 text-slate-800">2026 NGO 必備範本</h3>
-                                    <div className="text-3xl font-black text-teal-600 mb-2">NT$ 2,980</div>
-                                    <p className="text-[10px] text-teal-700 mb-6 bg-teal-50 p-2 rounded-lg italic font-bold">※ 可加購 $1,500 專家陪同帶看服務，確保正確填寫。</p>
-                                    <ul className="text-sm space-y-3 mb-10 flex-grow text-slate-500 font-medium">
-                                        {templates.map((t, idx) => <li key={idx} className="flex items-center gap-2"><CheckCircle2 size={14} className="text-teal-500 shrink-0" /> {t}</li>)}
-                                        <li className="pt-4 text-xs font-bold text-teal-800">✓ 提供「勞務報酬單」格式供報帳核銷</li>
-                                    </ul>
-                                    <button onClick={() => setShowModal('order')} className="w-full bg-teal-600 text-white py-4 rounded-2xl font-bold hover:bg-teal-700 shadow-lg transition-all">立即訂購</button>
-                                </div>
-
-                                {/* Plan: Call */}
-                                <div className="bg-white p-8 rounded-[2.5rem] shadow-lg flex flex-col border border-slate-100 transform hover:scale-[1.02] transition-all">
-                                    <h3 className="text-xl font-bold mb-2">專家單次對談</h3>
-                                    <div className="text-3xl font-black mb-6 text-slate-800">NT$ 3,600 <span className="text-xs font-normal opacity-40">/ 60min</span></div>
-                                    <ul className="text-sm space-y-4 mb-10 flex-grow text-slate-500 font-medium">
-                                        <li className="flex gap-2"><CheckCircle2 size={14} className="text-amber-500 shrink-0 mt-1" /> 針對單一人事爭議深度拆解與建議</li>
-                                        <li className="flex gap-2"><CheckCircle2 size={14} className="text-amber-500 shrink-0 mt-1" /> 醫療人資專家親自針對組織現狀診斷</li>
-                                        <li className="flex gap-2"><CheckCircle2 size={14} className="text-amber-500 shrink-0 mt-1" /> 包含一次諮詢後的合約文字複閱</li>
-                                    </ul>
-                                    <button onClick={() => setShowModal('consult')} className="w-full border-2 border-teal-600 text-teal-600 py-4 rounded-2xl font-bold hover:bg-teal-50 transition-all">預約對談</button>
-                                </div>
-
-                                {/* Plan: Annual */}
-                                <div className="bg-slate-900 p-8 rounded-[2.5rem] shadow-lg text-white flex flex-col transform hover:scale-[1.02] transition-all">
-                                    <h3 className="text-xl font-bold mb-2 text-teal-400 font-bold">年度合規陪伴</h3>
-                                    <div className="text-3xl font-black mb-6">NT$ 12,000 <span className="text-xs font-normal opacity-40">/ 年</span></div>
-                                    <ul className="text-sm space-y-4 mb-10 flex-grow text-slate-400 font-medium">
-                                        <li className="flex gap-2"><CheckCircle2 size={14} className="text-teal-400 shrink-0 mt-1" /> 含 2026 完整合規範本庫 (七套)</li>
-                                        <li className="flex gap-2"><CheckCircle2 size={14} className="text-teal-400 shrink-0 mt-1" /> 每季一次人事制度定期健康檢查</li>
-                                        <li className="flex gap-2"><CheckCircle2 size={14} className="text-teal-400 shrink-0 mt-1" /> 突發人事爭議 Email 優先諮詢權</li>
-                                    </ul>
-                                    <button onClick={() => handleEmailClick('我想瞭解 NGO 年度合規陪伴方案')} className="w-full bg-white text-slate-900 py-4 rounded-2xl font-bold hover:bg-slate-100 transition-all text-sm">聯繫顧問</button>
-                                </div>
-                            </div>
-                        </section>
-
-                        {/* FAQ Section */}
-                        <section className="mb-24 max-w-3xl mx-auto text-left">
-                            <div className="text-center mb-12 font-bold text-2xl text-slate-800">常見問題 QA</div>
-                            <div className="space-y-4">
-                                {faqs.map((faq, i) => (
-                                    <div key={i} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-                                        <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full p-5 text-left flex justify-between items-center hover:bg-slate-50 transition-colors">
-                                            <span className="font-bold text-slate-700 flex items-center gap-3"><HelpCircle size={18} className="text-teal-500" /> {faq.q}</span>
-                                            <ChevronDown className={`transition-transform duration-300 ${openFaq === i ? 'rotate-180' : ''}`} />
-                                        </button>
-                                        <div className={`transition-all duration-300 overflow-hidden ${openFaq === i ? 'max-h-60' : 'max-h-0'}`}>
-                                            <div className="p-5 pt-0 text-sm text-slate-500 leading-relaxed bg-slate-50/50">{faq.a}</div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-
-                        {/* About Me Section */}
-                        <section className="bg-[#E6F4F1] p-10 rounded-[2.5rem] flex flex-col md:flex-row items-center gap-10 border border-teal-100 text-left">
-                            <div className="w-48 h-48 bg-white rounded-3xl shrink-0 flex items-center justify-center text-teal-600 shadow-inner"><Stethoscope size={80} /></div>
-                            <div className="text-sm">
-                                <h3 className="text-2xl font-bold mb-4 text-teal-900 italic underline underline-offset-8 decoration-teal-300">您的專業守護者</h3>
-                                <p className="text-slate-600 leading-relaxed mb-4 font-light">我是您的勞資顧問。憑藉中國醫藥大學運動醫學背景，及在衛政機關與公立醫院近 10 年的人資管理實務，我致力於將嚴謹的體系經驗轉化為 NGO 聽得懂、用得上的護航工具。我懂醫療、懂長照，更懂您在追求公益理想時，對組織穩定的渴望。</p>
-                            </div>
-                        </section>
-                    </main>
-
-                    {/* Footer */}
-                    <footer className="bg-[#0D2E2B] text-teal-100 py-20 px-8 text-center text-xs">
-                        <div className="flex justify-center gap-8 mb-8 underline underline-offset-8 decoration-teal-700">
-                            <button onClick={() => setShowModal('tos')} className="hover:text-white transition-colors">服務條款</button>
-                            <button onClick={() => setShowModal('refund')} className="hover:text-white transition-colors">退費與隱私政策</button>
-                        </div>
-                        <div className="flex items-center justify-center gap-2 mb-4 text-teal-400 font-bold tracking-widest uppercase">
-                            <Mail size={14} /> ngolaborhelper@gmail.com
-                        </div>
-                        <p className="opacity-40 tracking-widest uppercase italic font-bold">© 2026 NGO 勞資小幫手 | 以醫學背景建構合規職場</p>
-                    </footer>
-
-                    {/* Modal System */}
-                    {showModal && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onClick={() => setShowModal(null)}></div>
-                            <div className="bg-white rounded-[2rem] w-full max-w-xl max-h-[85vh] overflow-y-auto p-10 relative z-10 shadow-2xl text-left border border-teal-50">
-                                <button onClick={() => setShowModal(null)} className="absolute top-8 right-8 text-slate-300 hover:text-slate-600 transition-colors"><X size={28} /></button>
-                                
-                                {showModal === 'download' && (
-                                    <div className="text-center animate-fade-in">
-                                        <h2 className="text-2xl font-bold mb-4 text-teal-900">免費領取：2026 合規查檢表</h2>
-                                        <p className="text-slate-500 mb-8 text-sm leading-relaxed">請留下您的聯繫資訊，系統將自動寄送 PDF 查檢表至您的電子郵件。</p>
-                                        <form className="space-y-4 text-left" onSubmit={(e) => {e.preventDefault(); alert('查檢表已寄出！請至信箱查看。'); setShowModal(null);}}>
-                                            <div><label className="block text-xs font-bold mb-1 uppercase text-slate-400">單位名稱</label><input type="text" className="w-full border p-3 rounded-xl focus:ring-2 focus:ring-teal-100 outline-none" required /></div>
-                                            <div><label className="block text-xs font-bold mb-1 uppercase text-slate-400">Email (接收檔案用)</label><input type="email" className="w-full border p-3 rounded-xl focus:ring-2 focus:ring-teal-100 outline-none" required /></div>
-                                            <button className="w-full bg-teal-600 text-white py-4 rounded-xl font-bold hover:bg-teal-700 shadow-lg">立即獲取檔案</button>
-                                        </form>
-                                    </div>
-                                )}
-
-                                {showModal === 'order' && (
-                                    <div className="animate-fade-in">
-                                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><CreditCard className="text-teal-600" /> 訂購合規範本庫</h2>
-                                        <div className="bg-teal-50 p-5 rounded-2xl text-xs text-teal-800 mb-8 leading-relaxed flex gap-3">
-                                            <Info size={24} className="shrink-0 text-teal-500" />
-                                            <div>目前尚未開放線上刷卡。請填寫資訊，我們將於 24 小時內寄送**「匯款帳號」**與**「勞務報酬單」**電子檔至您的信箱。</div>
-                                        </div>
-                                        <form className="space-y-4 text-sm" onSubmit={(e) => {e.preventDefault(); alert('訂購資訊已送出，我們將盡快聯繫您！'); setShowModal(null);}}>
-                                            <div><label className="block mb-1 font-bold text-slate-400 text-xs">單位全銜 (開立收據用)</label><input type="text" className="w-full border p-3 rounded-xl focus:ring-2 focus:ring-teal-100 outline-none" required /></div>
-                                            <div><label className="block mb-1 font-bold text-slate-400 text-xs">聯繫人姓名</label><input type="text" className="w-full border p-3 rounded-xl focus:ring-2 focus:ring-teal-100 outline-none" required /></div>
-                                            <div><label className="block mb-1 font-bold text-slate-400 text-xs">電子郵件 (接收範本用)</label><input type="email" className="w-full border p-3 rounded-xl focus:ring-2 focus:ring-teal-100 outline-none" required /></div>
-                                            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 mt-4">
-                                                <div className="flex items-center gap-3">
-                                                    <input type="checkbox" id="walkthrough" className="w-5 h-5 accent-teal-600" />
-                                                    <label htmlFor="walkthrough" className="text-xs font-bold text-teal-900 cursor-pointer leading-relaxed">
-                                                        加購 $1,500 「專家線上陪同帶看服務」<br/>
-                                                        <span className="font-normal text-slate-500 text-[10px]">由顧問陪同 30 分鐘，解說合約修改關鍵並協助完成填寫，確保萬無一失。</span>
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <button className="w-full bg-teal-600 text-white py-4 rounded-xl font-bold shadow-lg mt-4">確認訂購並索取匯款資訊</button>
-                                        </form>
-                                    </div>
-                                )}
-
-                                {showModal === 'consult' && (
-                                    <div className="animate-fade-in">
-                                        <h2 className="text-2xl font-bold mb-6 flex items-center gap-2"><Calendar className="text-amber-600" /> 預約專業諮詢</h2>
-                                        <div className="bg-amber-50 p-5 rounded-2xl text-xs text-amber-800 mb-6 italic leading-relaxed">請留下基本資訊與目前遇到的困難，我將回覆預約時間表與線上會議連結。</div>
-                                        <form className="space-y-4 text-sm" onSubmit={(e) => {e.preventDefault(); alert('預約資訊已送出，請留意信箱回覆。'); setShowModal(null);}}>
-                                            <div><label className="block mb-1 font-bold text-slate-400 text-xs uppercase">單位名稱</label><input type="text" className="w-full border p-3 rounded-xl outline-none focus:ring-2 focus:ring-amber-100" required /></div>
-                                            <div><label className="block mb-1 font-bold text-slate-400 text-xs uppercase tracking-widest">諮詢類別</label>
-                                                <select className="w-full border p-3 rounded-xl bg-white outline-none focus:ring-2 focus:ring-amber-100"><option>合約健檢</option><option>勞資爭議處理</option><option>薪資/長照制度設計</option></select>
-                                            </div>
-                                            <div><label className="block mb-1 font-bold text-slate-400 text-xs uppercase tracking-widest">目前問題簡述 (重要)</label>
-                                                <textarea 
-                                                    className="w-full border p-3 rounded-xl h-32 outline-none focus:ring-2 focus:ring-amber-100" 
-                                                    placeholder="範例：我們有一位計畫助理任職兩年，目前專案經費預計在下個月結束，但不確定資遣程序與費用如何計算..." required
-                                                ></textarea>
-                                            </div>
-                                            <div><label className="block mb-1 font-bold text-slate-400 text-xs uppercase tracking-widest">您的 Email</label><input type="email" className="w-full border p-3 rounded-xl outline-none focus:ring-2 focus:ring-amber-100" required /></div>
-                                            <button className="w-full bg-teal-600 text-white py-4 rounded-xl font-bold shadow-lg">送出預約申請</button>
-                                        </form>
-                                    </div>
-                                )}
-
-                                {showModal === 'tos' && (
-                                    <div className="animate-fade-in space-y-6">
-                                        <h2 className="text-2xl font-bold border-b border-teal-100 pb-4">服務條款 (Terms)</h2>
-                                        <div className="text-sm text-slate-600 leading-relaxed space-y-6 text-left">
-                                            <section>
-                                                <p className="font-bold text-slate-900 mb-2 text-lg underline underline-offset-4 decoration-teal-500">一、 專業性質與範圍</p>
-                                                <p>「NGO 勞資小幫手」所提供之診斷工具、合約範本及相關諮詢，係基於 2026 年最新勞政法規之「行政實務管理建議」。因各非營利組織之經營形態各異，本服務屬於「管理諮詢」，不構成律師正式法律訴訟代理或執業律師之法律意見。使用者應依組織個別情況進行最終調整與確認。</p>
-                                            </section>
-                                            <section>
-                                                <p className="font-bold text-slate-900 mb-2 text-lg underline underline-offset-4 decoration-teal-500">二、 智慧財產權與限制</p>
-                                                <p>本站提供之所有合約範本均受著作權法保護。購買之範本僅限於購買單位「內部重複使用」。嚴禁轉售、公開分享或提供予第三方單位/公司使用。使用者須對最終簽署之合約內容負完全法律責任。</p>
-                                            </section>
-                                            <section>
-                                                <p className="font-bold text-slate-900 mb-2 text-lg underline underline-offset-4 decoration-teal-500">三、 守護承諾</p>
-                                                <p>我們致力於內容之準確性。若因法規重大更迭導致範本不合時宜，我們將針對已購買單位主動發送更新通知，與您共同承擔守護責任。</p>
-                                            </section>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {showModal === 'refund' && (
-                                    <div className="animate-fade-in space-y-6">
-                                        <h2 className="text-2xl font-bold border-b border-teal-100 pb-4 flex items-center gap-3"><ShieldHalf className="text-teal-600" /> 退費與隱私政策</h2>
-                                        <div className="text-sm text-slate-600 leading-relaxed space-y-6 text-left">
-                                            <section>
-                                                <p className="font-bold text-slate-900 mb-2 text-lg underline underline-offset-4 decoration-teal-500">一、 退費政策 (Refund Policy)</p>
-                                                <ul className="list-disc pl-5 space-y-2">
-                                                    <li><strong>數位產品：</strong> 因數位範本庫具即時交付性質且極易複製，一經寄送至您的 Email 後，恕不接受退費。我們提供完善的後續更新通知以保障品質。</li>
-                                                    <li><strong>諮詢服務：</strong> 預約後若須取消，請於約定時間 24 小時前提出可獲全額退費（扣除銀行轉帳手續費）。</li>
-                                                </ul>
-                                            </section>
-                                            <section>
-                                                <p className="font-bold text-slate-900 mb-2 text-lg underline underline-offset-4 decoration-teal-500">二、 隱私權與資安保護</p>
-                                                <p>我們極度重視 NGO 人事資料之敏感性。本站「診斷工具」採 100% 本地化運算技術，您輸入的條文內容僅供瀏覽器當下解析比對，絕對不存儲於伺服器。您的聯繫 Email 僅用於服務交付與法規更新通知。</p>
-                                            </section>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
+        <!-- 診斷結果區 (初始隱藏) -->
+        <div id="resultArea" class="hidden animate-fade-in mb-24">
+            <div class="bg-white rounded-[2.5rem] shadow-2xl p-10 border border-teal-50 overflow-hidden">
+                <h3 id="resultTitle" class="text-2xl font-bold mb-8 italic text-slate-700">診斷報告：正在分析...</h3>
+                <div id="riskList" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                    <!-- 動態插入風險 -->
                 </div>
-            );
-        };
+                <div class="bg-teal-900 text-white p-10 rounded-[2.5rem] text-center">
+                    <h4 class="text-xl font-bold mb-4 italic">修正漏洞，現在只需 5 分鐘</h4>
+                    <p class="opacity-70 mb-8 text-sm max-w-xl mx-auto leading-relaxed">自動掃描僅能抓出顯性錯誤。NGO 常見的「經費核銷」與「衛政申報」合規細節，建議使用我為您設計的完整範本庫。</p>
+                    <button onclick="document.getElementById('plans').scrollIntoView({behavior: 'smooth'})" class="bg-amber-500 text-white px-12 py-3 rounded-full font-bold shadow-lg">瀏覽專業守護方案</button>
+                </div>
+            </div>
+        </div>
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        <!-- 常見地雷區 -->
+        <section class="mb-24 px-4 text-center">
+            <h2 class="text-3xl font-bold text-slate-800 mb-4 italic underline underline-offset-8 decoration-teal-500/30">NGO 勞資常見地雷解析</h2>
+            <p class="text-slate-500 mb-16">真實發生的風險案例，正在損耗組織的預算與公信力</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-[2rem] shadow-md border border-slate-50 transform hover:-translate-y-1 transition-transform border-t-8 border-t-red-400 text-left">
+                    <div class="bg-red-50 text-red-600 w-12 h-12 rounded-2xl flex items-center justify-center mb-4"><i class="fas fa-triangle-exclamation"></i></div>
+                    <h4 class="font-bold mb-2">志工領取「固定車馬費」</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">每月定額支付 5,000 元而非實支。離職時若主張這是經常性薪資，組織須補提 6% 勞退與資遣費。</p>
+                </div>
+                <div class="bg-white p-8 rounded-[2rem] shadow-md border border-slate-50 transform hover:-translate-y-1 transition-transform border-t-8 border-t-red-400 text-left">
+                    <div class="bg-red-50 text-red-600 w-12 h-12 rounded-2xl flex items-center justify-center mb-4"><i class="fas fa-triangle-exclamation"></i></div>
+                    <h4 class="font-bold mb-2">計畫結束即「自動離職」</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">誤以為經費結束合約失效。若未依法正確簽署契約並給付資遣費，將面臨勞基法處罰。</p>
+                </div>
+                <div class="bg-white p-8 rounded-[2rem] shadow-md border border-slate-50 transform hover:-translate-y-1 transition-transform border-t-8 border-t-red-400 text-left">
+                    <div class="bg-red-50 text-red-600 w-12 h-12 rounded-2xl flex items-center justify-center mb-4"><i class="fas fa-triangle-exclamation"></i></div>
+                    <h4 class="font-bold mb-2">薪資「內含」加班費</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">未拆分本薪與加班費比例。遭員工追討時若無法舉證法定倍數，往往需全額補發。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 方案選擇區 -->
+        <section id="plans" class="py-16 text-center">
+            <h2 class="text-4xl font-bold text-slate-800 mb-16">選擇適合您的保護方案</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-left">
+                
+                <!-- 方案：範本庫 -->
+                <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border-4 border-teal-500 relative flex flex-col transform hover:scale-[1.02] transition-all">
+                    <div class="absolute -top-5 left-1/2 -translate-x-1/2 bg-teal-500 text-white px-6 py-1 rounded-full text-xs font-bold shadow-md uppercase tracking-widest text-center min-w-[120px]">組織防禦必備</div>
+                    <h3 class="text-xl font-bold mb-2">2026 NGO 必備範本</h3>
+                    <div class="text-3xl font-black text-teal-600 mb-2">NT$ 2,980</div>
+                    <p class="text-[10px] text-teal-700 mb-6 bg-teal-50 p-2 rounded-lg italic font-bold">※ 可加購 $1,500 專家陪同帶看服務，確保正確填寫。</p>
+                    <ul class="text-sm space-y-3 mb-10 flex-grow text-slate-500 font-medium">
+                        <li><i class="fas fa-check-circle text-teal-500 mr-2"></i> 正職人員不定期勞動契約</li>
+                        <li><i class="fas fa-check-circle text-teal-500 mr-2"></i> 兼職助理定期勞動契約</li>
+                        <li><i class="fas fa-check-circle text-teal-500 mr-2"></i> 專案承攬/委任契約範本</li>
+                        <li><i class="fas fa-check-circle text-teal-500 mr-2"></i> 外部講師勞務報酬合約</li>
+                        <li><i class="fas fa-check-circle text-teal-500 mr-2"></i> 志願服務協議書 (志服法)</li>
+                        <li class="pt-4 text-xs font-bold text-teal-800">✓ 提供「勞務報酬單」供核銷報帳</li>
+                    </ul>
+                    <button onclick="openModal('order')" class="w-full bg-teal-600 text-white py-4 rounded-2xl font-bold hover:bg-teal-700 shadow-lg transition-all">立即訂購</button>
+                </div>
+
+                <!-- 方案：諮詢 -->
+                <div class="bg-white p-8 rounded-[2.5rem] shadow-lg flex flex-col border border-slate-100 transform hover:scale-[1.02] transition-all">
+                    <h3 class="text-xl font-bold mb-2">專家單次對談</h3>
+                    <div class="text-3xl font-black mb-6 text-slate-800">NT$ 3,600 <span class="text-xs font-normal opacity-40">/ 60min</span></div>
+                    <ul class="text-sm space-y-4 mb-10 flex-grow text-slate-500 font-medium">
+                        <li><i class="fas fa-check-circle text-amber-500 mr-2"></i> 針對單一人事爭議深度拆解</li>
+                        <li><i class="fas fa-check-circle text-amber-500 mr-2"></i> 醫療與衛政背景之合規修改建議</li>
+                        <li><i class="fas fa-check-circle text-amber-500 mr-2"></i> 包含諮詢後的一次合約文字複閱</li>
+                    </ul>
+                    <button onclick="openModal('consult')" class="w-full border-2 border-teal-600 text-teal-600 py-4 rounded-2xl font-bold hover:bg-teal-50 transition-all">預約對談</button>
+                </div>
+
+                <!-- 方案：年度 -->
+                <div class="bg-slate-900 p-8 rounded-[2.5rem] shadow-lg text-white flex flex-col transform hover:scale-[1.02] transition-all">
+                    <h3 class="text-xl font-bold mb-2 text-teal-400 font-bold">年度合規陪伴</h3>
+                    <div class="text-3xl font-black mb-6">NT$ 12,000 <span className="text-xs font-normal opacity-40">/ 年</span></div>
+                    <ul class="text-sm space-y-4 mb-10 flex-grow text-slate-400 font-medium">
+                        <li><i class="fas fa-check-circle text-teal-400 mr-2"></i> 含 2026 完整合規範本庫 (七套)</li>
+                        <li><i class="fas fa-check-circle text-teal-400 mr-2"></i> 每季一次人事制度定期健康檢查</li>
+                        <li><i class="fas fa-check-circle text-teal-400 mr-2"></i> 突發人事爭議 Email 優先諮詢權</li>
+                    </ul>
+                    <a href="mailto:ngolaborhelper@gmail.com?subject=我想瞭解 NGO 年度合規陪伴方案" class="w-full bg-white text-slate-900 py-4 rounded-2xl font-bold hover:bg-slate-100 transition-all text-sm text-center">聯繫顧問</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ 問答區 -->
+        <section class="mb-24 max-w-3xl mx-auto">
+            <div class="text-center mb-12 font-bold text-2xl text-slate-800">常見問題 QA</div>
+            <div class="space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden text-left faq-item" onclick="toggleFaq(this)">
+                    <button class="w-full p-5 text-left flex justify-between items-center hover:bg-slate-50 transition-colors">
+                        <span class="font-bold text-slate-700 flex items-center gap-3"><i class="far fa-circle-question text-teal-500"></i> 個人顧問費用是可以報帳的嗎？</span>
+                        <i class="fas fa-chevron-down faq-icon transition-transform"></i>
+                    </button>
+                    <div class="faq-content"><div class="p-5 pt-0 text-sm text-slate-500 leading-relaxed bg-slate-50/50">絕對可以。您可以開立「勞務報酬單」並簽名。對於 NGO 來說，這與發票具備同等入帳效力，機構只需依 9A 執行業務所得進行申報核銷。我提供的範本庫中也包含標準格式。</div></div>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden text-left faq-item" onclick="toggleFaq(this)">
+                    <button class="w-full p-5 text-left flex justify-between items-center hover:bg-slate-50 transition-colors">
+                        <span class="font-bold text-slate-700 flex items-center gap-3"><i class="far fa-circle-question text-teal-500"></i> 長照據點的居服員可以簽承攬嗎？</span>
+                        <i class="fas fa-chevron-down faq-icon transition-transform"></i>
+                    </button>
+                    <div class="faq-content"><div class="p-5 pt-0 text-sm text-slate-500 leading-relaxed bg-slate-50/50">這涉及極高風險。居服員的工作具高度指揮監督性質且須申報，實務上極大機率被判定為「僱傭」，建議使用勞動契約進行修改。</div></div>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden text-left faq-item" onclick="toggleFaq(this)">
+                    <button class="w-full p-5 text-left flex justify-between items-center hover:bg-slate-50 transition-colors">
+                        <span class="font-bold text-slate-700 flex items-center gap-3"><i class="far fa-circle-question text-teal-500"></i> 合約診斷真的不會洩漏資料嗎？</span>
+                        <i class="fas fa-chevron-down faq-icon transition-transform"></i>
+                    </button>
+                    <div class="faq-content"><div class="p-5 pt-0 text-sm text-slate-500 leading-relaxed bg-slate-50/50">是的，本工具 100% 在您的瀏覽器本地運行。您的合約內容絕不傳輸至伺服器，您可以完全放心使用。</div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 關於我 -->
+        <section class="bg-[#E6F4F1] p-10 rounded-[2.5rem] flex flex-col md:flex-row items-center gap-10 border border-teal-100 text-left">
+            <div class="w-48 h-48 bg-white rounded-3xl shrink-0 flex items-center justify-center text-teal-600 shadow-inner"><i class="fas fa-stethoscope text-6xl"></i></div>
+            <div class="text-sm">
+                <h3 class="text-2xl font-bold mb-4 text-teal-900 italic underline underline-offset-8 decoration-teal-300">您的專業守護者</h3>
+                <p class="text-slate-600 leading-relaxed mb-4 font-light">我是您的勞資顧問。憑藉中國醫藥大學運動醫學背景，及在衛政機關與公立醫院近 10 年的人資管理實務，我致力於將嚴謹的體系經驗轉化為 NGO 聽得懂、用得上的護航工具。我懂醫療、懂長照，更懂您在追求公益理想時，對組織穩定的渴望。</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- 頁腳 -->
+    <footer class="bg-[#0D2E2B] text-teal-100 py-20 px-8 text-center text-xs">
+        <div class="flex justify-center gap-8 mb-8 underline underline-offset-8 decoration-teal-700">
+            <button onclick="openModal('tos')" class="hover:text-white transition-colors">服務條款</button>
+            <button onclick="openModal('refund')" class="hover:text-white transition-colors">退費與隱私政策</button>
+        </div>
+        <div class="flex items-center justify-center gap-2 mb-4 text-teal-400 font-bold tracking-widest uppercase">
+            <i class="fas fa-envelope text-[14px]"></i> ngolaborhelper@gmail.com
+        </div>
+        <p class="opacity-40 tracking-widest uppercase italic font-bold">© 2026 NGO 勞資小幫手 | 以醫學背景建構合規職場</p>
+    </footer>
+
+    <!-- 彈窗系統 (Modals) -->
+    <div id="modalOverlay" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onclick="closeModal()"></div>
+        <div class="bg-white rounded-[2rem] w-full max-w-xl max-h-[85vh] overflow-y-auto p-10 relative z-10 shadow-2xl text-left border border-teal-50">
+            <button onclick="closeModal()" class="absolute top-8 right-8 text-slate-300 hover:text-slate-600"><i class="fas fa-times text-xl"></i></button>
+            
+            <!-- 內容容器 -->
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // 診斷邏輯
+        function checkContract() {
+            const text = document.getElementById('contractInput').value;
+            if (!text.trim()) { alert('請先輸入合約條款文字。'); return; }
+
+            const riskArea = document.getElementById('resultArea');
+            const riskList = document.getElementById('riskList');
+            const resultTitle = document.getElementById('resultTitle');
+            riskList.innerHTML = '';
+            let risks = [];
+
+            // 判斷邏輯
+            if (/\b(1[0-8][0-9]|19[0-5])\b|(\b([1-9]\d{3}|2[0-8]\d{3}|29[0-4]\d{2})\b)/g.test(text)) {
+                risks.push({ title: '薪資水位警示', desc: '偵測到數額疑低於 2026 法定標準（時薪 $196 / 月薪 $29,500）。請務必修正以避免高額罰鍰。' });
+            }
+            if ((text.includes('承攬') || text.includes('委任')) && (text.includes('打卡') || text.includes('指揮') || text.includes('監督'))) {
+                risks.push({ title: '實質僱傭判定風險', desc: '合約標題與內文不符。這在長照與社福勞檢中是高發違規點，極大機率須補繳勞退與保費。' });
+            }
+
+            if (risks.length > 0) {
+                resultTitle.innerText = `診斷報告：偵測到 ${risks.length} 處風險熱點`;
+                risks.forEach(r => {
+                    riskList.innerHTML += `<div class="p-6 rounded-3xl border-l-8 bg-red-50 border-red-500 text-slate-800 animate-fade-in"><h4 class="font-bold mb-2 flex items-center gap-2"><i class="fas fa-circle-exclamation text-red-500"></i> ${r.title}</h4><p class="text-sm opacity-80 leading-relaxed">${r.desc}</p></div>`;
+                });
+            } else {
+                resultTitle.innerText = `診斷報告：✅ 初步掃描狀況良好`;
+                riskList.innerHTML = `<div class="col-span-full py-12 text-center bg-teal-50 rounded-3xl animate-fade-in"><i class="fas fa-circle-check text-5xl text-teal-500 mb-4"></i><p class="font-bold text-teal-800">目前關鍵字偵測安全，建議選用專業範本確保 100% 合規。</p></div>`;
+            }
+
+            riskArea.classList.remove('hidden');
+            riskArea.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // 彈窗管理
+        function openModal(type) {
+            const overlay = document.getElementById('modalOverlay');
+            const content = document.getElementById('modalContent');
+            document.body.classList.add('modal-active');
+            overlay.classList.remove('hidden');
+
+            const templates = {
+                download: `
+                    <div class="text-center animate-fade-in">
+                        <h2 class="text-2xl font-bold mb-4">免費領取：2026 合規查檢表</h2>
+                        <p class="text-slate-500 mb-8 text-sm leading-relaxed">請留下您的聯繫資訊，系統將自動寄送 PDF 查檢表至您的電子郵件。</p>
+                        <form class="space-y-4 text-left" onsubmit="event.preventDefault(); alert('查檢表已寄出！'); closeModal();">
+                            <div><label class="block text-xs font-bold mb-1 uppercase text-slate-400">單位全銜</label><input type="text" class="w-full border-2 border-slate-100 p-3 rounded-xl outline-none focus:border-teal-500" required></div>
+                            <div><label class="block text-xs font-bold mb-1 uppercase text-slate-400">您的 Email</label><input type="email" class="w-full border-2 border-slate-100 p-3 rounded-xl outline-none focus:border-teal-500" required></div>
+                            <button class="w-full bg-teal-600 text-white py-4 rounded-xl font-bold shadow-lg">立即獲取檔案</button>
+                        </form>
+                    </div>`,
+                order: `
+                    <div class="animate-fade-in">
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-2 text-teal-600"><i class="fas fa-credit-card"></i> 訂購範本庫</h2>
+                        <div class="bg-teal-50 p-5 rounded-2xl text-xs text-teal-800 mb-8 leading-relaxed flex gap-3">
+                            <i class="fas fa-circle-info text-teal-500 text-lg"></i>
+                            <div>目前尚未開放線上刷卡。請填寫資訊，我們將於 24 小時內寄送**「匯款帳號」**與**「勞務報酬單」**電子檔至您的信箱。</div>
+                        </div>
+                        <form class="space-y-4 text-sm" onsubmit="event.preventDefault(); alert('訂購資訊已送出，我們將盡快聯繫您！'); closeModal();">
+                            <div><label class="block mb-1 font-bold text-slate-400 text-xs">單位全銜 (開立收據用)</label><input type="text" class="w-full border-2 border-slate-100 p-3 rounded-xl" required></div>
+                            <div><label class="block mb-1 font-bold text-slate-400 text-xs">電子郵件 (接收範本用)</label><input type="email" class="w-full border-2 border-slate-100 p-3 rounded-xl" required></div>
+                            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 mt-4">
+                                <div class="flex items-center gap-3">
+                                    <input type="checkbox" id="walkthrough" class="w-5 h-5 accent-teal-600 cursor-pointer">
+                                    <label for="walkthrough" class="text-[11px] font-bold text-teal-900 cursor-pointer">
+                                        加購 $1,500 「專家陪同線上導讀服務」<br/>
+                                        <span class="font-normal text-slate-500 text-[10px]">由顧問陪同 30 分鐘，解說合約修改關鍵並協助完成填寫。</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <button class="w-full bg-teal-600 text-white py-4 rounded-xl font-bold shadow-lg mt-4">確認訂購並索取匯款資訊</button>
+                        </form>
+                    </div>`,
+                consult: `
+                    <div class="animate-fade-in">
+                        <h2 class="text-2xl font-bold mb-6 flex items-center gap-2 text-amber-600"><i class="fas fa-calendar-check"></i> 預約專業諮詢</h2>
+                        <form class="space-y-4 text-sm" onsubmit="event.preventDefault(); alert('預約資訊已送出！'); closeModal();">
+                            <div><label class="block mb-1 font-bold text-slate-400 text-xs uppercase">問題簡述 (重要)</label>
+                                <textarea class="w-full border-2 border-slate-100 p-3 rounded-xl h-32 outline-none focus:ring-2 focus:ring-amber-100" 
+                                placeholder="範例：我們有一位專案人員任職兩年，預計下個月經費結束後不續約，想確認資遣程序與費用計算是否合規..." required></textarea>
+                            </div>
+                            <div><label class="block mb-1 font-bold text-slate-400 text-xs uppercase">聯繫 Email</label><input type="email" class="w-full border-2 border-slate-100 p-3 rounded-xl" required></div>
+                            <button class="w-full bg-teal-600 text-white py-4 rounded-xl font-bold shadow-lg">送出預約申請</button>
+                        </form>
+                    </div>`,
+                tos: `
+                    <div class="animate-fade-in space-y-6">
+                        <h2 class="text-2xl font-bold border-b border-teal-100 pb-4">服務條款 (Terms)</h2>
+                        <div class="text-sm text-slate-600 leading-relaxed space-y-6">
+                            <p class="font-bold text-slate-900 mb-2 text-lg underline underline-offset-4 decoration-teal-500">一、 專業定位</p>
+                            <p>「NGO 勞資小幫手」所提供之診斷、範本與諮詢，係基於 2026 最新法規之管理建議，不代表正式法律意見。</p>
+                            <p class="font-bold text-slate-900 mb-2 text-lg underline underline-offset-4 decoration-teal-500">二、 智慧財產權</p>
+                            <p>本站提供之合約範本限購買單位內部重複使用。嚴禁轉售、公開分享或提供予第三方單位使用。</p>
+                        </div>
+                    </div>`,
+                refund: `
+                    <div class="animate-fade-in space-y-6">
+                        <h2 class="text-2xl font-bold border-b border-teal-100 pb-4 flex items-center gap-3 text-teal-600"><i class="fas fa-shield-halved"></i> 退費與隱私政策</h2>
+                        <div class="text-sm text-slate-600 leading-relaxed space-y-6">
+                            <p class="font-bold text-slate-900 mb-2 text-lg underline underline-offset-4 decoration-teal-500">一、 退費說明 (Refund)</p>
+                            <p>數位產品一經寄送至 Email 後恕不接受退費。專家諮詢預約於 24 小時前取消可獲全額退費。</p>
+                            <p class="font-bold text-slate-900 mb-2 text-lg underline underline-offset-4 decoration-teal-500">二、 隱私與資安保護</p>
+                            <p>診斷工具採 100% 本地化運算，數據絕不存儲於伺服器。Email 僅用於服務交付與法規更新通知。</p>
+                        </div>
+                    </div>`
+            };
+
+            content.innerHTML = templates[type];
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.add('hidden');
+            document.body.classList.remove('modal-active');
+        }
+
+        // FAQ Toggle
+        function toggleFaq(el) {
+            el.classList.toggle('faq-active');
+        }
     </script>
 </body>
 </html>
