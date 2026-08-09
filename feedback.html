@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="NGO 勞資小幫手低敏感需求回饋入口，不需填寫姓名、身分證或上傳附件。">
+  <title>需求回饋｜NGO 勞資小幫手</title>
+  <style>
+    :root{--ink:#17332f;--muted:#61716e;--paper:#f7f7f2;--white:#fff;--green:#11685e;--green2:#e4f4ef;--amber:#f4a126;--line:#d9e5e1;--shadow:0 20px 55px rgba(20,65,58,.12)}
+    *{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#eef8f4,var(--paper) 42%);color:var(--ink);font-family:"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.65}
+    button,input,select,textarea{font:inherit}.wrap{width:min(760px,calc(100% - 32px));margin:auto}.top{padding:44px 0 24px}.back{color:var(--green);font-weight:800;text-decoration:none}.card{background:var(--white);border:1px solid var(--line);border-radius:28px;box-shadow:var(--shadow);padding:clamp(24px,6vw,48px);margin-bottom:48px}h1{font-size:clamp(32px,6vw,50px);line-height:1.12;margin:18px 0 12px}.lead{color:var(--muted);font-size:17px}.notice{background:#fff6df;border-left:5px solid var(--amber);border-radius:12px;padding:14px 16px;margin:24px 0}.field{margin:24px 0}.field label,.legend{display:block;font-weight:800;margin-bottom:8px}.field select,.field textarea{width:100%;border:2px solid var(--line);border-radius:14px;background:#fff;padding:13px 15px;color:var(--ink)}.field textarea{min-height:150px;resize:vertical}.field select:focus,.field textarea:focus{outline:3px solid rgba(17,104,94,.18);border-color:var(--green)}.choices{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.choice{display:flex;gap:8px;align-items:start;border:2px solid var(--line);border-radius:14px;padding:12px;background:#fff}.choice:has(input:checked){border-color:var(--green);background:var(--green2)}.small{font-size:13px;color:var(--muted)}.btn{width:100%;border:0;border-radius:14px;padding:14px 18px;background:var(--green);color:white;font-weight:900;cursor:pointer}.btn:hover{filter:brightness(.96)}.btn:focus-visible{outline:4px solid rgba(244,161,38,.45);outline-offset:3px}.success{display:none;background:var(--green2);border-radius:16px;padding:18px;margin-top:18px}.success.show{display:block}@media(max-width:560px){.choices{grid-template-columns:1fr}.top{padding-top:28px}.card{border-radius:20px}}
+  </style>
+</head>
+<body>
+  <header class="top"><div class="wrap"><a class="back" href="index.html">← 返回 NGO 勞資小幫手</a></div></header>
+  <main class="wrap">
+    <section class="card">
+      <p class="small">PINGRISK 公益工具試用回饋</p>
+      <h1>告訴我們哪裡需要更好</h1>
+      <p class="lead">不需要填姓名、機構名稱、身分證、電話，也不要貼上當事人完整對話或證據。請只描述工具使用感受或問題類型。</p>
+      <div class="notice"><strong>隱私提醒：</strong>本頁不儲存內容。按下送出後會開啟 LINE，仍須由你確認傳送；LINE 官方帳號可能看得到你的 LINE 顯示名稱，因此並非完全匿名。</div>
+      <form id="feedbackForm">
+        <div class="field"><label for="role">你主要以什麼角度使用？</label><select id="role" required><option value="">請選擇</option><option>NGO／非營利組織管理者</option><option>NGO 工作者</option><option>人資或行政人員</option><option>志工／實習生</option><option>顧問或陪伴者</option><option>其他／不方便說明</option></select></div>
+        <fieldset class="field" style="border:0;padding:0"><legend class="legend">這次想回饋什麼？</legend><div class="choices"><label class="choice"><input type="radio" name="topic" value="健檢題目" required>健檢題目</label><label class="choice"><input type="radio" name="topic" value="職場霸凌流程">職場霸凌流程</label><label class="choice"><input type="radio" name="topic" value="表單範本">表單範本</label><label class="choice"><input type="radio" name="topic" value="網站操作">網站操作</label><label class="choice"><input type="radio" name="topic" value="法規內容">法規內容</label><label class="choice"><input type="radio" name="topic" value="其他建議">其他建議</label></div></fieldset>
+        <div class="field"><label for="problem">哪個地方看不懂、找不到或希望新增？</label><textarea id="problem" maxlength="600" required placeholder="請用概略方式描述；不要寫姓名、機構名稱、電話、身分證字號或可辨識個案的完整內容。"></textarea><p class="small">最多 600 字</p></div>
+        <div class="field"><label for="helpful">什麼改變對你最有幫助？（選填）</label><textarea id="helpful" maxlength="300" placeholder="例如：希望有更短的處理步驟、增加某種表單、用更白話的說明。"></textarea></div>
+        <button class="btn" type="submit">開啟 LINE，確認後送出</button>
+        <p class="small">若涉及正在進行的個案、法定期限或人身安全，請勿只等待本工具回覆，應同步聯絡主管機關或合格專業人士。</p>
+      </form>
+      <div id="success" class="success" role="status"><strong>已準備好回饋內容。</strong><br>請在 LINE 視窗中再次確認後按下傳送。</div>
+    </section>
+  </main>
+  <script>
+    document.getElementById('feedbackForm').addEventListener('submit',function(event){
+      event.preventDefault();
+      if(!this.reportValidity())return;
+      const role=document.getElementById('role').value;
+      const topic=new FormData(this).get('topic');
+      const problem=document.getElementById('problem').value.trim();
+      const helpful=document.getElementById('helpful').value.trim()||'未填寫';
+      const message=`【NGO 勞資小幫手回饋】\n使用角度：${role}\n回饋主題：${topic}\n遇到的問題：${problem}\n希望的改善：${helpful}`;
+      document.getElementById('success').classList.add('show');
+      window.location.href='https://line.me/R/oaMessage/%40262aykxr/?'+encodeURIComponent(message);
+    });
+  </script>
+</body>
+</html>
